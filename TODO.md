@@ -35,6 +35,10 @@
 - O parágrafo deve manter coerência temática com o versículo do dia, indicar a mensagem relacionada e oferecer um link para pesquisá-la.
 - Identificar o parágrafo como reflexão editorial inspirada na mensagem, e não como citação literal.
 
+## Ajustes de texto recebidos pela prévia — concluído
+- Alterar o título da chamada de leitura `.reading-callout h2` de “Leia com calma. Volte quando quiser.” para “Medite Nas Palavras”.
+- Remover o título `.books-title-row h2` “Livros da Bíblia” e suas regras visuais, conforme o conteúdo e estilos vazios no JSON; preservar o rótulo “EXPLORE AS ESCRITURAS”, a descrição, a contagem, os filtros e a lista de livros.
+
 ## Servidor da busca integrada — concluído
 - O usuário autorizou habilitar permanentemente o recurso de servidor do projeto para integrar a pesquisa real das mensagens.
 - Habilitar o servidor sem habilitar nem criar banco de dados.
