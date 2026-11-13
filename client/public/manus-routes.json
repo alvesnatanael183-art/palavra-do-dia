@@ -1,0 +1,1 @@
+{"routes":[{"path":"/","title":"Palavra Viva"},{"path":"/busca","title":"Busca na Bíblia"},{"path":"/leitura/:book/:chapter","title":"Leitura bíblica"}]}
