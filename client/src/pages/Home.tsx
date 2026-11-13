@@ -2,13 +2,23 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowRight, BookOpen, ChevronRight, Search, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
-import { bookHref, getBooks, type BibleBook } from "@/lib/bible";
+import { bookHref, getBooks, getChapter, textFromContent, type BibleBook } from "@/lib/bible";
 
 const quickReads = [
   { label: "Salmo 91", book: "PSA", chapter: 91 },
   { label: "Salmo 23", book: "PSA", chapter: 23 },
   { label: "João 3", book: "JHN", chapter: 3 },
   { label: "Romanos 8", book: "ROM", chapter: 8 },
+];
+
+const dailyReadings = [
+  { bookId: "HEB", chapter: 11, verse: 1, reference: "HEBREUS 11:1", fallback: "Ora, a fé é a certeza daquilo que esperamos, a prova das coisas que não se veem.", reflection: "A fé bíblica firma a esperança no caráter de Deus e na sua Palavra, mesmo quando ainda não vemos o desfecho. Essa confiança é o tema central de A Fé É o Firme Fundamento: uma vida que aprende a caminhar sustentada pelo que Deus prometeu." },
+  { bookId: "ROM", chapter: 10, verse: 17, reference: "ROMANOS 10:17", fallback: "Logo, a fé vem pelo ouvir, e o ouvir pela palavra de Deus.", reflection: "A fé se alimenta de ouvir a Palavra e deixá-la orientar as escolhas do cotidiano. A mensagem A Fé É o Firme Fundamento também aponta para essa confiança: não apenas conhecer as palavras, mas permitir que elas deem direção à vida." },
+  { bookId: "MAT", chapter: 21, verse: 22, reference: "MATEUS 21:22", fallback: "E tudo o que pedirem em oração, crendo, vocês receberão.", reflection: "A oração cristã nasce da confiança em Deus e permanece orientada pela sua Palavra. Ao refletirmos sobre A Fé É o Firme Fundamento, lembramos que a esperança não é uma fórmula: é uma relação de confiança que conduz o coração a buscar a Deus." },
+  { bookId: "JAS", chapter: 1, verse: 6, reference: "TIAGO 1:6", fallback: "Peça, porém, com fé, sem duvidar de nada.", reflection: "Quando a dúvida aparece, a Escritura convida a pedir sabedoria e a permanecer firmes em Deus. A mensagem A Fé É o Firme Fundamento trata dessa confiança como algo que sustenta a caminhada, inclusive nos dias em que as circunstâncias parecem instáveis." },
+  { bookId: "PSA", chapter: 37, verse: 5, reference: "SALMOS 37:5", fallback: "Entregue o seu caminho ao SENHOR; confie também nele, e ele o fará.", reflection: "Entregar o caminho ao Senhor é confiar nele também durante o processo. A fé não apaga as dificuldades, mas dá esperança para seguir com fidelidade. Essa é uma leitura possível em diálogo com A Fé É o Firme Fundamento e com o convite do salmo a confiar em Deus." },
+  { bookId: "HEB", chapter: 11, verse: 6, reference: "HEBREUS 11:6", fallback: "Sem fé é impossível agradar a Deus, pois aquele que se aproxima dele deve crer que ele existe e que recompensa os que o buscam.", reflection: "Buscar a Deus começa com confiança: crer que ele está presente e se aproximar dele com sinceridade. A mensagem A Fé É o Firme Fundamento retoma essa convicção e nos chama a fazer da fé uma postura diária, não apenas uma ideia." },
+  { bookId: "2CO", chapter: 5, verse: 7, reference: "2 CORÍNTIOS 5:7", fallback: "Pois andamos por fé, não por vista.", reflection: "Nem sempre enxergamos o próximo passo, mas a fé nos ajuda a caminhar com esperança e responsabilidade. Em sintonia com A Fé É o Firme Fundamento, este texto lembra que confiar em Deus também significa continuar seguindo sua Palavra no presente." },
 ];
 
 function sectionFor(order: number) {
@@ -29,10 +39,21 @@ export default function Home() {
   const [filter, setFilter] = useState("");
   const [testament, setTestament] = useState<"Todos" | "Antigo" | "Novo">("Todos");
   const [query, setQuery] = useState("");
+  const dailyReading = dailyReadings[new Date().getDay()];
+  const [dailyVerseText, setDailyVerseText] = useState(dailyReading.fallback);
 
   useEffect(() => {
     getBooks().then(setBooks).catch(() => setBookError(true));
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    getChapter(dailyReading.bookId, dailyReading.chapter).then(({ chapter }) => {
+      const verse = chapter.content.find((item) => item.type === "verse" && item.number === dailyReading.verse);
+      if (active && verse) setDailyVerseText(textFromContent(verse));
+    }).catch(() => { /* Mantém o texto de referência enquanto a API bíblica estiver indisponível. */ });
+    return () => { active = false; };
+  }, [dailyReading.bookId, dailyReading.chapter, dailyReading.verse]);
 
   const visibleBooks = useMemo(() => {
     const needle = filter.trim().toLocaleLowerCase("pt-BR");
@@ -76,15 +97,24 @@ export default function Home() {
         </section>
 
         <section id="versiculo" className="daily-section page-width">
-          <div className="section-heading"><span className="section-kicker"><Sparkles size={14} /> PARA HOJE</span><Link href={bookHref("PSA", 23, 1)}>Ler capítulo <ArrowRight size={15} /></Link></div>
+          <div className="section-heading"><span className="section-kicker"><Sparkles size={14} /> PARA HOJE</span><Link href={bookHref(dailyReading.bookId, dailyReading.chapter, dailyReading.verse)}>Ler capítulo <ArrowRight size={15} /></Link></div>
           <div className="daily-card">
             <div className="daily-mark" aria-hidden="true">“</div>
             <div className="daily-copy">
-              <p>O SENHOR é o meu pastor; nada me faltará.</p>
-              <Link href={bookHref("PSA", 23, 1)} className="verse-reference">SALMOS 23:1 <span>·</span> BÍBLIA PORTUGUESA MUNDIAL</Link>
+              <p>{dailyVerseText}</p>
+              <Link href={bookHref(dailyReading.bookId, dailyReading.chapter, dailyReading.verse)} className="verse-reference">{dailyReading.reference} <span>·</span> BÍBLIA PORTUGUESA MUNDIAL</Link>
             </div>
-            <div className="daily-aside"><span className="daily-date">LEITURA DO DIA</span><BookOpen size={26} strokeWidth={1.5} /></div>
+            <div className="daily-aside"><span className="daily-date">{new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}</span><BookOpen size={26} strokeWidth={1.5} /></div>
           </div>
+        </section>
+
+        <section id="reflexao-diaria" className="daily-reflection-section page-width">
+          <div className="section-heading"><span className="section-kicker">REFLEXÃO DO DIA</span><span className="reflection-alignment">Em diálogo com a mensagem</span></div>
+          <article className="daily-reflection-card">
+            <div className="reflection-label"><span>PALAVRA VIVA</span><span>·</span><span>REFLEXÃO ALINHADA A {dailyReading.reference}</span></div>
+            <p>{dailyReading.reflection}</p>
+            <div className="reflection-footer"><span>Texto editorial original; não é transcrição literal.</span><Link href={`/mensagens?q=${encodeURIComponent("A Fé É o Firme Fundamento")}&tipo=frase`}>Mensagem relacionada: A Fé É o Firme Fundamento · 47-0412 <ArrowRight size={15} /></Link></div>
+          </article>
         </section>
 
         <section id="livros" className="books-section page-width">

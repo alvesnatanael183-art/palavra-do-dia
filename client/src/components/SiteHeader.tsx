@@ -22,6 +22,7 @@ export default function SiteHeader() {
           <a href="/#versiculo" onClick={closeMenu}>Versículo do dia</a>
           <Link href="/leitura/GEN/1" onClick={closeMenu}>Leitura</Link>
           <Link href="/busca" onClick={closeMenu}>Busca</Link>
+          <Link href="/mensagens" onClick={closeMenu}>Mensagens</Link>
         </nav>
         <div className="header-actions">
           <Link href="/busca" className="icon-button search-shortcut" aria-label="Pesquisar na Bíblia"><Search size={19} /></Link>

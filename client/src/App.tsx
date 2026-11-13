@@ -7,12 +7,14 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Reader from "./pages/Reader";
 import SearchPage from "./pages/Search";
+import Messages from "./pages/Messages";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/busca" component={SearchPage} />
+      <Route path="/mensagens" component={Messages} />
       <Route path="/leitura/:book/:chapter" component={Reader} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
