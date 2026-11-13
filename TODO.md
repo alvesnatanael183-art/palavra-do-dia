@@ -44,6 +44,12 @@
 - Atualizar o `.eyebrow` de “UM ESPAÇO PARA A PALAVRA” para “SEMENTE CRÉ” e, na alteração seguinte do mesmo elemento, para “SEMENTE CRE”; o estado final solicitado é exatamente “SEMENTE CRE”.
 - Alterar `.reading-callout h2` de “Medite Nas Palavras” para “LER  OS LIVROS SAGRADOS”.
 
+## Busca de mensagens na página inicial — concluído
+- “quero que vc coloque uma busca nas mesagen do profeta acima do nome explore as escrituras”.
+- Exibir uma barra de busca das mensagens do profeta na página inicial, imediatamente acima do texto “EXPLORE AS ESCRITURAS”.
+- Ao enviar uma consulta, abrir a página integrada de mensagens com o termo preenchido e iniciar a busca; manter disponíveis lá os modos de todas as palavras e frase exata.
+- Preservar a busca bíblica existente, a listagem de livros e a responsividade da página.
+
 ## Servidor da busca integrada — concluído
 - O usuário autorizou habilitar permanentemente o recurso de servidor do projeto para integrar a pesquisa real das mensagens.
 - Habilitar o servidor sem habilitar nem criar banco de dados.

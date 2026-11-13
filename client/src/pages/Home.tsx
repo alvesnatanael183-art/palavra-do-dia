@@ -39,6 +39,8 @@ export default function Home() {
   const [filter, setFilter] = useState("");
   const [testament, setTestament] = useState<"Todos" | "Antigo" | "Novo">("Todos");
   const [query, setQuery] = useState("");
+  const [prophetQuery, setProphetQuery] = useState("");
+  const [prophetSearchError, setProphetSearchError] = useState("");
   const dailyReading = dailyReadings[new Date().getDay()];
   const [dailyVerseText, setDailyVerseText] = useState(dailyReading.fallback);
 
@@ -75,6 +77,17 @@ export default function Home() {
   function submitSearch(event: FormEvent) {
     event.preventDefault();
     if (query.trim()) setLocation(`/busca?q=${encodeURIComponent(query.trim())}`);
+  }
+
+  function submitProphetSearch(event: FormEvent) {
+    event.preventDefault();
+    const clean = prophetQuery.trim();
+    if (clean.length < 2) {
+      setProphetSearchError("Digite pelo menos duas letras para pesquisar.");
+      return;
+    }
+    setProphetSearchError("");
+    setLocation(`/mensagens?q=${encodeURIComponent(clean)}&tipo=todas`);
   }
 
   return (
@@ -118,6 +131,20 @@ export default function Home() {
         </section>
 
         <section id="livros" className="books-section page-width">
+          <div className="prophet-home-search">
+            <div className="prophet-home-search-copy">
+              <span className="section-kicker">MENSAGENS DO PROFETA</span>
+              <p>Pesquise palavras ou frases nas mensagens de William Marrion Branham.</p>
+            </div>
+            <div className="prophet-home-search-control">
+              <form className="message-search-form prophet-home-search-form" role="search" aria-label="Pesquisar nas mensagens do profeta" onSubmit={submitProphetSearch}>
+                <Search size={19} className="message-search-icon" aria-hidden="true" />
+                <input type="search" maxLength={120} value={prophetQuery} onChange={(event) => { setProphetQuery(event.target.value); setProphetSearchError(""); }} placeholder="Ex.: fé, oração, Palavra de Deus" aria-label="Termo para buscar nas mensagens do profeta" aria-invalid={Boolean(prophetSearchError)} aria-describedby={prophetSearchError ? "prophet-home-search-error" : undefined} />
+                <button className="message-search-submit" type="submit">Buscar <ArrowRight size={15} /></button>
+              </form>
+              {prophetSearchError && <p className="prophet-home-search-error" id="prophet-home-search-error" role="alert">{prophetSearchError}</p>}
+            </div>
+          </div>
           <div className="books-title-row">
             <div><span className="section-kicker">EXPLORE AS ESCRITURAS</span><p>Escolha um livro para começar sua leitura.</p></div>
             <div className="book-count"><strong>{books.length || "66"}</strong><span>livros</span></div>

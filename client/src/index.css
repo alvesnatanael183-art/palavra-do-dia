@@ -105,6 +105,11 @@ button { color: inherit; }
 .daily-date { color: var(--soft-muted); font-size: 9px; font-weight: 700; letter-spacing: .12em; }
 
 .books-section { padding-top: 67px; padding-bottom: 37px; }
+.prophet-home-search { margin-bottom: 30px; padding: 18px 20px; display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.2fr); align-items: center; gap: 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper); }
+.prophet-home-search-copy p { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.prophet-home-search-control { min-width: 0; }
+.prophet-home-search-form { width: 100%; }
+.prophet-home-search-error { margin: 6px 0 0; color: #9b4141; font-size: 11px; }
 .books-title-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 26px; }
 .reading-callout h2 { margin: 10px 0 7px; font-family: Georgia, "Times New Roman", serif; font-size: 34px; line-height: 1.1; letter-spacing: -.04em; font-weight: 400; }
 .books-title-row p, .reading-callout p { margin: 0; color: var(--muted); font-size: 13px; }
@@ -248,6 +253,7 @@ button { color: inherit; }
   .main-nav a { font-size: 12px; }
   .book-groups { gap: 24px 20px; }
   .book-grid { grid-template-columns: 1fr; }
+  .prophet-home-search { grid-template-columns: 1fr; gap: 14px; padding: 16px; }
   .reading-callout { grid-template-columns: 45px 1fr; }
   .callout-link { grid-column: 2; justify-self: start; }
   .reader-title-block { align-items: flex-start; flex-direction: column; }
@@ -286,6 +292,7 @@ button { color: inherit; }
   .daily-aside { display: none; }
   .verse-reference { gap: 5px; font-size: 8px; }
   .books-section { padding-top: 50px; }
+  .prophet-home-search { margin-bottom: 23px; padding: 15px 13px; gap: 11px; }
   .books-title-row { margin-bottom: 20px; }
   .books-title-row p { max-width: 250px; font-size: 11px; line-height: 1.5; }
   .book-count strong { font-size: 28px; }
