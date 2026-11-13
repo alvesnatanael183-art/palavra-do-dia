@@ -134,14 +134,15 @@ export default function Home() {
           <div className="prophet-home-search">
             <div className="prophet-home-search-copy">
               <span className="section-kicker">MENSAGENS DO PROFETA</span>
-              <p>Pesquise palavras ou frases nas mensagens de William Marrion Branham.</p>
+              <p>Pesquise por livro bíblico, palavra ou frase nas mensagens de William Marrion Branham.</p>
             </div>
             <div className="prophet-home-search-control">
               <form className="message-search-form prophet-home-search-form" role="search" aria-label="Pesquisar nas mensagens do profeta" onSubmit={submitProphetSearch}>
                 <Search size={19} className="message-search-icon" aria-hidden="true" />
-                <input type="search" maxLength={120} value={prophetQuery} onChange={(event) => { setProphetQuery(event.target.value); setProphetSearchError(""); }} placeholder="Ex.: fé, oração, Palavra de Deus" aria-label="Termo para buscar nas mensagens do profeta" aria-invalid={Boolean(prophetSearchError)} aria-describedby={prophetSearchError ? "prophet-home-search-error" : undefined} />
+                <input type="search" list="prophet-message-book-list" maxLength={120} value={prophetQuery} onChange={(event) => { setProphetQuery(event.target.value); setProphetSearchError(""); }} placeholder="Ex.: Hebreus, Salmos, fé, oração…" aria-label="Livro, palavra ou frase para buscar nas mensagens do profeta" aria-invalid={Boolean(prophetSearchError)} aria-describedby={prophetSearchError ? "prophet-home-search-error" : undefined} />
                 <button className="message-search-submit" type="submit">Buscar <ArrowRight size={15} /></button>
               </form>
+              <datalist id="prophet-message-book-list">{books.map((book) => <option key={book.id} value={book.name} />)}</datalist>
               {prophetSearchError && <p className="prophet-home-search-error" id="prophet-home-search-error" role="alert">{prophetSearchError}</p>}
             </div>
           </div>

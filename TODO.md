@@ -50,6 +50,13 @@
 - Ao enviar uma consulta, abrir a página integrada de mensagens com o termo preenchido e iniciar a busca; manter disponíveis lá os modos de todas as palavras e frase exata.
 - Preservar a busca bíblica existente, a listagem de livros e a responsividade da página.
 
+## Buscar mensagens por livro e ler os trechos — concluído
+- “coloque abaixo do nome mensagen do profeta um barra de pesquisa onde eu possa pequisa por livros e ler seguindo esse exemplo do link https://table.branham.org/#/pt/main”.
+- Colocar a barra de pesquisa diretamente abaixo do rótulo “MENSAGENS DO PROFETA” na home, antes de “EXPLORE AS ESCRITURAS”.
+- Permitir digitar palavras/frases e sugerir os nomes dos livros bíblicos disponíveis para pesquisar esses termos no arquivo de mensagens do profeta.
+- Enviar a consulta para a busca integrada do The Table, exibir resultados e permitir selecionar e ler o trecho contextualizado, preservando os modos de todas as palavras e frase exata na página de resultados.
+- Manter os demais componentes da home e o layout responsivo.
+
 ## Servidor da busca integrada — concluído
 - O usuário autorizou habilitar permanentemente o recurso de servidor do projeto para integrar a pesquisa real das mensagens.
 - Habilitar o servidor sem habilitar nem criar banco de dados.

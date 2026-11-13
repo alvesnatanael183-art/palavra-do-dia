@@ -105,7 +105,8 @@ button { color: inherit; }
 .daily-date { color: var(--soft-muted); font-size: 9px; font-weight: 700; letter-spacing: .12em; }
 
 .books-section { padding-top: 67px; padding-bottom: 37px; }
-.prophet-home-search { margin-bottom: 30px; padding: 18px 20px; display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.2fr); align-items: center; gap: 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper); }
+.prophet-home-search { margin-bottom: 30px; padding: 18px 20px; display: grid; grid-template-columns: 1fr; gap: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper); }
+.prophet-home-search-copy { display: flex; flex-direction: column; gap: 6px; }
 .prophet-home-search-copy p { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .prophet-home-search-control { min-width: 0; }
 .prophet-home-search-form { width: 100%; }
