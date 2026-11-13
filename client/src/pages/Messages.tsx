@@ -171,7 +171,7 @@ export default function Messages() {
             <button type="button" className={mode === "AllWords" ? "active" : ""} aria-pressed={mode === "AllWords"} onClick={() => { if (mode !== "AllWords") searchFor(query, "AllWords"); }}>Todas as palavras</button>
             <button type="button" className={mode === "ExactPhrase" ? "active" : ""} aria-pressed={mode === "ExactPhrase"} onClick={() => { if (mode !== "ExactPhrase") searchFor(query, "ExactPhrase"); }}>Frase exata</button>
           </div>
-          <a className="official-search-link" href={officialUrl} target="_blank" rel="noreferrer">Fonte: Voice of God Recordings <ExternalLink size={13} /></a>
+          <a className="official-search-link" href={officialUrl} target="_blank" rel="noreferrer">Abrir Livro. <ExternalLink size={13} /></a>
         </div>
 
         {!activeQuery && <div className="message-discovery-row"><span>Buscas sugeridas</span>{suggestions.map((item) => <button key={item} type="button" onClick={() => searchFor(item)}>{item}</button>)}</div>}

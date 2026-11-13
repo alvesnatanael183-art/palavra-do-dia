@@ -57,6 +57,10 @@
 - Enviar a consulta para a busca integrada do The Table, exibir resultados e permitir selecionar e ler o trecho contextualizado, preservando os modos de todas as palavras e frase exata na página de resultados.
 - Manter os demais componentes da home e o layout responsivo.
 
+## Rótulo do link para a fonte oficial — concluído
+- No link `.official-search-link`, substituir apenas o texto visível “Fonte: Voice of God Recordings” por “Abrir Livro.”.
+- Preservar o destino oficial do The Table, o ícone de link externo, a abertura em nova aba e os demais controles da busca.
+
 ## Servidor da busca integrada — concluído
 - O usuário autorizou habilitar permanentemente o recurso de servidor do projeto para integrar a pesquisa real das mensagens.
 - Habilitar o servidor sem habilitar nem criar banco de dados.
