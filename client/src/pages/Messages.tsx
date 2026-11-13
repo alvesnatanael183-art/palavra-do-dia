@@ -117,6 +117,8 @@ export default function Messages() {
   );
   const [fullLoading, setFullLoading] = useState(false);
   const [fullError, setFullError] = useState("");
+  const [readerNightMode, setReaderNightMode] = useState(false);
+  const [readerFontSize, setReaderFontSize] = useState(16);
   const catalogLoadingRef = useRef(false);
   const fullRequestVersion = useRef(0);
 
@@ -561,6 +563,10 @@ export default function Messages() {
               totalMessages={catalog.length}
               loading={fullLoading}
               error={fullError}
+              nightMode={readerNightMode}
+              fontSize={readerFontSize}
+              onToggleNightMode={() => setReaderNightMode(current => !current)}
+              onFontSizeChange={setReaderFontSize}
               onNavigate={navigateCatalog}
               onRetry={retryFullMessage}
             />

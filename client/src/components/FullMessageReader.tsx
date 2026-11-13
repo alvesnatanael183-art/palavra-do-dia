@@ -4,10 +4,14 @@ import {
   ChevronRight,
   ExternalLink,
   LoaderCircle,
+  Moon,
+  Sun,
 } from "lucide-react";
 import type { ProphetFullMessage } from "@/lib/prophetMessages";
 
 const officialUrl = "https://table.branham.org/#/pt/main";
+const MIN_FONT_SIZE = 14;
+const MAX_FONT_SIZE = 24;
 
 type FullMessageReaderProps = {
   message: ProphetFullMessage | null;
@@ -15,6 +19,10 @@ type FullMessageReaderProps = {
   totalMessages: number;
   loading: boolean;
   error: string;
+  nightMode: boolean;
+  fontSize: number;
+  onToggleNightMode: () => void;
+  onFontSizeChange: (fontSize: number) => void;
   onNavigate: (offset: -1 | 1) => void;
   onRetry: () => void;
 };
@@ -25,12 +33,16 @@ export default function FullMessageReader({
   totalMessages,
   loading,
   error,
+  nightMode,
+  fontSize,
+  onToggleNightMode,
+  onFontSizeChange,
   onNavigate,
   onRetry,
 }: FullMessageReaderProps) {
   return (
     <article
-      className="message-reading-panel full-message-panel"
+      className={`message-reading-panel full-message-panel${nightMode ? " is-night" : ""}`}
       aria-label="Leitura integral da mensagem"
     >
       {loading && (
@@ -100,11 +112,54 @@ export default function FullMessageReader({
             </button>
           </nav>
 
+          <div className="full-message-tools">
+            <button
+              type="button"
+              className="full-message-night-toggle"
+              aria-pressed={nightMode}
+              aria-label={
+                nightMode ? "Desativar modo noturno" : "Ativar modo noturno"
+              }
+              onClick={onToggleNightMode}
+            >
+              {nightMode ? <Sun size={14} /> : <Moon size={14} />}
+              <span>{nightMode ? "Modo claro" : "Modo noturno"}</span>
+            </button>
+            <div
+              className="full-message-font-controls"
+              role="group"
+              aria-label="Ajustar tamanho da fonte"
+            >
+              <button
+                type="button"
+                disabled={fontSize <= MIN_FONT_SIZE}
+                onClick={() =>
+                  onFontSizeChange(Math.max(MIN_FONT_SIZE, fontSize - 1))
+                }
+                aria-label="Diminuir tamanho do texto"
+              >
+                A−
+              </button>
+              <span aria-live="polite">{fontSize}px</span>
+              <button
+                type="button"
+                disabled={fontSize >= MAX_FONT_SIZE}
+                onClick={() =>
+                  onFontSizeChange(Math.min(MAX_FONT_SIZE, fontSize + 1))
+                }
+                aria-label="Aumentar tamanho do texto"
+              >
+                A+
+              </button>
+            </div>
+          </div>
+
           <div className="full-message-scroll" aria-label="Texto integral">
             {message.sections.map((section, index) => (
               <div
                 className="full-message-paragraph"
                 key={`${section.paragraph}-${index}`}
+                style={{ fontSize: `${fontSize}px` }}
               >
                 {section.paragraph && (
                   <span className="full-message-paragraph-number">

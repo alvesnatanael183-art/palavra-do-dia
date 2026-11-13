@@ -544,3 +544,143 @@ button { color: inherit; }
   .full-message-paragraph-number { min-width: 20px; }
   .full-message-source { padding: 9px 17px 13px; }
 }
+
+
+/* Busca no índice A–Z e controles da leitura integral */
+.message-catalog-search {
+  min-height: 42px;
+  margin: 12px 12px 0;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--soft-muted);
+  background: var(--paper);
+}
+.message-catalog-search:focus-within {
+  border-color: #8fb6ca;
+  box-shadow: 0 0 0 3px rgba(74, 132, 164, .08);
+}
+.message-catalog-search input {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  background: transparent;
+  font-size: 10px;
+}
+.message-catalog-search input::placeholder { color: #98a4ac; }
+.message-catalog-search button {
+  width: 25px;
+  height: 25px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  color: var(--muted);
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+}
+.message-catalog-search button:hover { background: var(--blue-pale); }
+.message-catalog-empty {
+  min-height: 150px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--muted);
+  text-align: center;
+}
+.message-catalog-empty strong {
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 400;
+}
+.message-catalog-empty p { margin: 0; font-size: 10px; line-height: 1.5; }
+
+.full-message-tools {
+  flex: none;
+  min-height: 50px;
+  padding: 8px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+}
+.full-message-night-toggle,
+.full-message-font-controls button {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  background: var(--paper);
+  font-size: 9px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: color .16s, background .16s, border-color .16s;
+}
+.full-message-night-toggle { padding: 0 10px; }
+.full-message-night-toggle:hover,
+.full-message-font-controls button:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue-deep);
+  background: var(--blue-pale);
+}
+.full-message-night-toggle[aria-pressed="true"] {
+  border-color: var(--blue);
+  color: var(--blue-deep);
+  background: var(--blue-pale);
+}
+.full-message-font-controls { display: inline-flex; align-items: center; gap: 5px; }
+.full-message-font-controls button { width: 33px; padding: 0; }
+.full-message-font-controls button:disabled { opacity: .4; cursor: not-allowed; }
+.full-message-font-controls > span {
+  min-width: 40px;
+  color: var(--soft-muted);
+  font-size: 8px;
+  text-align: center;
+}
+.full-message-night-toggle:focus-visible,
+.full-message-font-controls button:focus-visible,
+.message-catalog-search button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.full-message-panel.is-night {
+  --ink: #e8edf0;
+  --muted: #c1cbd0;
+  --soft-muted: #9aa8ae;
+  --blue: #a2cde0;
+  --blue-deep: #c3e1ed;
+  --blue-pale: #2a3d47;
+  --border: #3b4c55;
+  --paper: #18242b;
+  color: var(--ink);
+  background: var(--paper);
+  border-color: var(--border);
+}
+.full-message-panel.is-night .full-message-source { background: #141e24; }
+.full-message-panel.is-night .full-message-paragraph-number { color: #9cc9da; }
+
+@media (max-width: 600px) {
+  .message-catalog-search { min-height: 40px; margin: 10px 10px 0; padding-inline: 8px; }
+  .message-catalog-search input { font-size: 10px; }
+  .full-message-tools { min-height: 46px; padding: 7px 12px; }
+  .full-message-night-toggle { gap: 5px; padding-inline: 8px; font-size: 8px; }
+  .full-message-font-controls { gap: 4px; }
+  .full-message-font-controls button { width: 30px; min-height: 30px; font-size: 8px; }
+  .full-message-font-controls > span { min-width: 36px; font-size: 8px; }
+}

@@ -70,6 +70,12 @@
 - Carregar o texto completo somente quando uma mensagem for selecionada; não baixar em massa nem persistir o acervo de transcrições.
 - Manter a busca textual atual, os modos de busca e a navegação responsiva.
 
+## Preferências de leitura e busca no catálogo — concluído
+- “Implementar um modo de leitura noturna e ajuste de tamanho de fonte no leitor de livros completos. em abrir livros quero uma barra de pesquisa pra eu procurar o livro que desejo ler”.
+- No leitor da transcrição integral, oferecer alternância entre leitura clara/noturna e controles para aumentar e reduzir o tamanho do texto.
+- Dentro de “Abrir Livros”, exibir uma barra para procurar uma mensagem pelo título ou código e selecionar o resultado para leitura integral.
+- Preservar a ordem alfabética, a navegação anterior/próxima, a busca por trechos e a responsividade.
+
 ## Servidor da busca integrada — concluído
 - O usuário autorizou habilitar permanentemente o recurso de servidor do projeto para integrar a pesquisa real das mensagens.
 - Habilitar o servidor sem habilitar nem criar banco de dados.
