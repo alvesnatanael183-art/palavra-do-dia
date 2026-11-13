@@ -61,6 +61,15 @@
 - No link `.official-search-link`, substituir apenas o texto visível “Fonte: Voice of God Recordings” por “Abrir Livro.”.
 - Preservar o destino oficial do The Table, o ícone de link externo, a abertura em nova aba e os demais controles da busca.
 
+## Catálogo alfabético e leitura integral das mensagens — concluído
+- “quero que ao lado dessas palavras ,todas as palavras, frases exatas apareça o nome abri livros ao clicar possa abrir as mensagem do profeta em orden alfabética pra ler o livro inteiro nessa orden https://table.branham.org/#/pt/main”.
+- Adicionar “Abrir Livros” ao lado dos modos “Todas as palavras” e “Frase exata”.
+- Ao selecionar “Abrir Livros”, exibir as mensagens disponíveis em português ordenadas alfabeticamente pelo título; ao selecionar uma, abrir sua transcrição integral no painel de leitura do Palavra Viva.
+- Permitir avançar e voltar entre mensagens seguindo a mesma ordem alfabética, para continuar a leitura nessa ordem.
+- O usuário confirmou que tem autorização/licença para exibir o texto integral no Palavra Viva.
+- Carregar o texto completo somente quando uma mensagem for selecionada; não baixar em massa nem persistir o acervo de transcrições.
+- Manter a busca textual atual, os modos de busca e a navegação responsiva.
+
 ## Servidor da busca integrada — concluído
 - O usuário autorizou habilitar permanentemente o recurso de servidor do projeto para integrar a pesquisa real das mensagens.
 - Habilitar o servidor sem habilitar nem criar banco de dados.

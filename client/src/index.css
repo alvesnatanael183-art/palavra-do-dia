@@ -472,3 +472,75 @@ button { color: inherit; }
 .message-source-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
 .message-source-actions button { padding: 0; border: 0; color: var(--soft-muted); background: transparent; font-size: 9px; text-decoration: underline; text-underline-offset: 3px; }
 .message-source-actions button:hover { color: var(--blue); }
+
+
+/* Catalogo A–Z e leitura integral sob demanda */
+.message-catalog-list {
+  flex: 1;
+  min-height: 0;
+  max-height: 525px;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.message-catalog-list li { margin: 0; }
+.message-catalog-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background .16s, border-color .16s;
+}
+.message-catalog-item:hover,
+.message-catalog-item.selected { border-color: var(--border); background: var(--blue-pale); }
+.message-catalog-item.selected { border-color: var(--blue); }
+.message-catalog-item:focus-visible,
+.full-message-navigation button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.message-catalog-item-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.message-catalog-item-copy strong { color: var(--ink); font-size: 10px; font-weight: 650; line-height: 1.45; }
+.message-catalog-item-copy small { color: var(--soft-muted); font-size: 8px; }
+.message-catalog-item > svg { flex: none; color: var(--soft-muted); }
+
+.full-message-panel { height: min(760px, 75vh); min-height: 610px; padding: 0; }
+.full-message-reader { height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.full-message-heading { flex: none; padding: 22px 27px 14px; border-bottom: 1px solid var(--border); }
+.full-message-heading > .section-kicker { display: inline-flex; align-items: center; gap: 6px; }
+.full-message-heading h2 { margin: 10px 0 8px; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: clamp(22px, 2.5vw, 30px); font-weight: 400; line-height: 1.2; letter-spacing: -.03em; }
+.full-message-navigation { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 22px; border-bottom: 1px solid var(--border); background: var(--paper); }
+.full-message-navigation button { min-height: 32px; display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; border: 1px solid var(--border); border-radius: 8px; color: var(--blue); background: var(--paper); font-size: 9px; font-weight: 650; cursor: pointer; }
+.full-message-navigation button:hover:not(:disabled) { border-color: #a8c5d4; background: var(--blue-pale); }
+.full-message-navigation button:disabled { opacity: .38; cursor: not-allowed; }
+.full-message-navigation > span { color: var(--soft-muted); font-size: 8px; }
+.full-message-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 17px 28px 23px; scroll-behavior: smooth; }
+.full-message-paragraph { display: flex; align-items: baseline; gap: 11px; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 15px; line-height: 1.85; white-space: pre-wrap; }
+.full-message-paragraph + .full-message-paragraph { margin-top: 12px; }
+.full-message-paragraph-number { min-width: 24px; color: var(--blue); font-family: Inter, Arial, sans-serif; font-size: 8px; font-weight: 750; text-align: right; }
+.full-message-paragraph-text { min-width: 0; white-space: pre-wrap; }
+.full-message-source { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 10px 27px 14px; border-top: 1px solid var(--border); background: var(--paper); }
+.full-message-source > span { color: var(--soft-muted); font-size: 8px; }
+.full-message-source a { display: inline-flex; align-items: center; gap: 6px; color: var(--blue); font-size: 9px; font-weight: 650; }
+.full-message-source a:hover { color: var(--blue-deep); }
+
+@media (max-width: 600px) {
+  .message-mode-tabs { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .message-mode-tabs button { min-width: 0; padding: 0 4px; font-size: 8px; white-space: nowrap; }
+  .message-catalog-list { max-height: 390px; }
+  .full-message-panel { height: 70vh; min-height: 520px; }
+  .full-message-heading { padding: 19px 17px 12px; }
+  .full-message-navigation { padding: 9px 12px; }
+  .full-message-navigation button { padding: 0 7px; font-size: 8px; }
+  .full-message-scroll { padding: 15px 16px 20px; }
+  .full-message-paragraph { gap: 8px; font-size: 14px; line-height: 1.8; }
+  .full-message-paragraph-number { min-width: 20px; }
+  .full-message-source { padding: 9px 17px 13px; }
+}
