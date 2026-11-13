@@ -84,8 +84,8 @@ export default function Home() {
         <section className="hero-section">
           <div className="hero-glow" aria-hidden="true" />
           <div className="hero-copy">
-            <div className="eyebrow"><span className="eyebrow-dot" /> UM ESPAÇO PARA A PALAVRA</div>
-            <h1>A Palavra de Deus<br /><em>sempre com você.</em></h1>
+            <div className="eyebrow"><span className="eyebrow-dot" />SEMENTE CRE</div>
+            <h1>A Fé É o Firme Fundamento</h1>
             <p className="hero-subtitle">Encontre uma passagem, explore as Escrituras e leia no seu ritmo.</p>
             <form className="hero-search" onSubmit={submitSearch}>
               <Search size={20} className="search-leading" />
@@ -134,7 +134,7 @@ export default function Home() {
           <div className="browse-note"><span>Uma leitura de cada vez.</span><Link href={bookHref("GEN", 1)}>Abrir Gênesis <ArrowRight size={15} /></Link></div>
         </section>
 
-        <section className="reading-callout page-width"><div className="callout-icon"><BookOpen size={23} /></div><div><span className="section-kicker">UM CAPÍTULO POR VEZ</span><h2>Medite Nas Palavras</h2><p>As referências têm links próprios para você continuar de onde parou ou compartilhar um versículo.</p></div><Link className="callout-link" href={bookHref("JHN", 1)}>Começar a leitura <ArrowRight size={16} /></Link></section>
+        <section className="reading-callout page-width"><div className="callout-icon"><BookOpen size={23} /></div><div><span className="section-kicker">UM CAPÍTULO POR VEZ</span><h2>LER  OS LIVROS SAGRADOS</h2><p>As referências têm links próprios para você continuar de onde parou ou compartilhar um versículo.</p></div><Link className="callout-link" href={bookHref("JHN", 1)}>Começar a leitura <ArrowRight size={16} /></Link></section>
       </main>
       <footer className="site-footer"><div className="footer-inner"><Link href="/" className="brand footer-brand"><span className="brand-mark"><BookOpen size={18} /></span><span className="brand-name">Palavra <b>Viva</b></span></Link><p>Texto bíblico: <a href="https://ebible.org/Scriptures/details.php?id=porbrbsl" target="_blank" rel="noreferrer">Bíblia Portuguesa Mundial</a> · Fonte: <a href="https://bible.helloao.org/docs/pt/" target="_blank" rel="noreferrer">API Bíblica de Uso Gratuito</a>.</p><a href="#top" className="back-top">Voltar ao topo ↑</a></div></footer>
       <div className="sr-only" id="top">Topo da página</div>
