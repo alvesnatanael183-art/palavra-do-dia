@@ -12,7 +12,6 @@ import SiteHeader from "@/components/SiteHeader";
 import FullMessageReader from "@/components/FullMessageReader";
 import MessageCatalog from "@/components/MessageCatalog";
 import { isGithubPagesStatic } from "@/lib/deployment";
-import { staticMessageCatalog } from "@/lib/staticMessageCatalog";
 import {
   getProphetMessageCatalog,
   readProphetMessage,
@@ -31,46 +30,113 @@ const titleCollator = new Intl.Collator("pt-BR", {
 });
 const officialUrl = "https://table.branham.org/#/pt/main";
 
+type StaticIndexedMessage = ProphetFullMessage & {
+  bookTitle: string;
+  text: string;
+};
+
+function normalizeMessageSearch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR")
+    .trim();
+}
+
 function StaticMessagesPage() {
+  const [messages, setMessages] = useState<StaticIndexedMessage[]>([]);
   const [query, setQuery] = useState("");
   const [titleFilter, setTitleFilter] = useState("");
   const [codeFilter, setCodeFilter] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     null
   );
-  const normalizedQuery = query
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("pt-BR")
-    .trim();
-  const normalizedTitleFilter = titleFilter
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("pt-BR")
-    .trim();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [readerNightMode, setReaderNightMode] = useState(false);
+  const [readerFontSize, setReaderFontSize] = useState(16);
+
+  const loadIndex = () => {
+    setLoading(true);
+    setError("");
+    const manifestUrl = new URL(
+      "./data/messages-search-manifest.json",
+      window.location.href
+    );
+    fetch(manifestUrl, { cache: "no-store" })
+      .then(response => {
+        if (!response.ok)
+          throw new Error("Não foi possível carregar o índice das mensagens.");
+        return response.json() as Promise<{ parts: string[] }>;
+      })
+      .then(manifest =>
+        Promise.all(
+          (manifest.parts ?? []).map(part =>
+            fetch(
+              new URL(`./data/messages-index/${part}`, window.location.href),
+              { cache: "no-store" }
+            ).then(response => {
+              if (!response.ok)
+                throw new Error("Uma parte do índice não pôde ser carregada.");
+              return response.json() as Promise<{
+                messages: StaticIndexedMessage[];
+              }>;
+            })
+          )
+        )
+      )
+      .then(chunks => {
+        setMessages(
+          chunks.flatMap(chunk =>
+            Array.isArray(chunk.messages) ? chunk.messages : []
+          )
+        );
+      })
+      .catch(reason => {
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : "Não foi possível carregar as mensagens."
+        );
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadIndex();
+  }, []);
+
+  const normalizedQuery = normalizeMessageSearch(query);
+  const normalizedTitleFilter = normalizeMessageSearch(titleFilter);
   const normalizedCodeFilter = codeFilter.trim().toLocaleLowerCase("pt-BR");
   const filteredMessages = useMemo(() => {
-    return staticMessageCatalog.filter(
-      message =>
-        message.title
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLocaleLowerCase("pt-BR")
-          .includes(normalizedTitleFilter) &&
+    const titleWords = normalizedTitleFilter.split(/\s+/).filter(Boolean);
+    return messages.filter(message => {
+      const title = normalizeMessageSearch(message.title);
+      const book = normalizeMessageSearch(message.bookTitle);
+      const text = normalizeMessageSearch(message.text);
+      const searchableText = `${book} ${title} ${message.dateCode} ${text}`;
+      const generalMatch =
+        !normalizedQuery || searchableText.includes(normalizedQuery);
+      const titleMatch =
+        titleWords.length === 0 ||
+        titleWords.every(word => searchableText.includes(word));
+      const codeMatch =
+        !normalizedCodeFilter ||
         message.dateCode
           .toLocaleLowerCase("pt-BR")
-          .includes(normalizedCodeFilter) &&
-        (!normalizedQuery ||
-          `${message.title} ${message.dateCode}`
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLocaleLowerCase("pt-BR")
-            .includes(normalizedQuery))
-    );
-  }, [normalizedCodeFilter, normalizedQuery, normalizedTitleFilter]);
-  const selectedMessage = staticMessageCatalog.find(
-    message => message.productId === selectedProductId
-  );
+          .includes(normalizedCodeFilter);
+      return generalMatch && titleMatch && codeMatch;
+    });
+  }, [messages, normalizedCodeFilter, normalizedQuery, normalizedTitleFilter]);
+
+  const selectedMessage =
+    messages.find(message => message.productId === selectedProductId) ?? null;
+  const selectedIndex = selectedMessage
+    ? filteredMessages.findIndex(
+        message => message.productId === selectedMessage.productId
+      )
+    : null;
   const suggestions = [
     "Gênesis",
     "Êxodo",
@@ -81,6 +147,13 @@ function StaticMessagesPage() {
     "fé",
     "oração",
   ];
+
+  function navigateMessage(offset: -1 | 1) {
+    if (selectedIndex === null || selectedIndex < 0) return;
+    const next = filteredMessages[selectedIndex + offset];
+    if (next) setSelectedProductId(next.productId);
+  }
+
   return (
     <div className="site-shell">
       <SiteHeader />
@@ -96,8 +169,8 @@ function StaticMessagesPage() {
           </span>
           <h1>Mensagens do profeta</h1>
           <p>
-            Pesquise diretamente neste site por livro bíblico, título, código da
-            mensagem ou nome específico.
+            Encontre um livro, pesquise todas as palavras das transcrições e
+            abra a mensagem diretamente nesta página.
           </p>
         </div>
         <section
@@ -106,16 +179,17 @@ function StaticMessagesPage() {
         >
           <aside
             className="message-results-panel"
-            aria-label="Busca de mensagens do profeta"
+            aria-label="Busca direta de mensagens do profeta"
           >
             <div className="message-panel-heading">
               <div>
                 <span className="section-kicker">BUSCA DIRETA</span>
-                <h2>Livros e nomes</h2>
+                <h2>Livros e mensagens</h2>
               </div>
               <span className="message-count">
-                {filteredMessages.length.toLocaleString("pt-BR")} de{" "}
-                {staticMessageCatalog.length.toLocaleString("pt-BR")}
+                {loading
+                  ? "Carregando…"
+                  : `${filteredMessages.length.toLocaleString("pt-BR")} de ${messages.length.toLocaleString("pt-BR")}`}
               </span>
             </div>
             <div className="message-catalog-search">
@@ -125,14 +199,14 @@ function StaticMessagesPage() {
                 maxLength={120}
                 value={query}
                 onChange={event => setQuery(event.target.value)}
-                placeholder="Ex.: Salmos, João, fé ou um nome…"
-                aria-label="Pesquisar mensagens por livro, título, código ou nome"
+                placeholder="Digite o nome do livro ou uma palavra…"
+                aria-label="Pesquisar livro, nome ou palavra dentro das mensagens"
               />
               {query && (
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  aria-label="Limpar pesquisa"
+                  aria-label="Limpar busca direta"
                 >
                   ×
                 </button>
@@ -140,14 +214,14 @@ function StaticMessagesPage() {
             </div>
             <div className="static-message-filter-grid">
               <label className="message-catalog-search">
-                <span className="sr-only">Filtrar por título</span>
+                <span className="sr-only">Filtrar por título e conteúdo</span>
                 <input
                   type="search"
                   maxLength={120}
                   value={titleFilter}
                   onChange={event => setTitleFilter(event.target.value)}
-                  placeholder="Filtrar por título…"
-                  aria-label="Filtrar mensagens por título"
+                  placeholder="Título ou palavras…"
+                  aria-label="Filtrar por título e todas as palavras do conteúdo"
                 />
                 {titleFilter && (
                   <button
@@ -166,7 +240,7 @@ function StaticMessagesPage() {
                   maxLength={40}
                   value={codeFilter}
                   onChange={event => setCodeFilter(event.target.value)}
-                  placeholder="Filtrar por código…"
+                  placeholder="Código…"
                   aria-label="Filtrar mensagens por código"
                 />
                 {codeFilter && (
@@ -188,14 +262,31 @@ function StaticMessagesPage() {
                 </button>
               ))}
             </div>
-            {filteredMessages.length === 0 ? (
+            {loading && (
+              <div className="message-loading">
+                <LoaderCircle size={21} className="spin" />
+                <span>Carregando índice completo…</span>
+              </div>
+            )}
+            {!loading && error && (
+              <div className="message-feedback">
+                <strong>Não foi possível abrir o índice.</strong>
+                <p>{error}</p>
+                <button type="button" onClick={loadIndex}>
+                  Tentar novamente
+                </button>
+              </div>
+            )}
+            {!loading && !error && filteredMessages.length === 0 && (
               <div className="message-catalog-empty" role="status">
                 <strong>Nenhuma mensagem encontrada.</strong>
                 <p>
-                  Tente o nome de um livro, uma palavra ou o código da mensagem.
+                  O filtro de título procura todas as palavras dentro das
+                  transcrições.
                 </p>
               </div>
-            ) : (
+            )}
+            {!loading && !error && filteredMessages.length > 0 && (
               <ul className="message-catalog-list">
                 {filteredMessages.map(message => (
                   <li key={message.productId}>
@@ -207,7 +298,10 @@ function StaticMessagesPage() {
                     >
                       <span className="message-catalog-item-copy">
                         <strong>{message.title}</strong>
-                        <small>{message.dateCode}</small>
+                        <small>
+                          {message.bookTitle ? `${message.bookTitle} · ` : ""}
+                          {message.dateCode}
+                        </small>
                       </span>
                       <ArrowRight size={15} aria-hidden="true" />
                     </button>
@@ -216,52 +310,19 @@ function StaticMessagesPage() {
               </ul>
             )}
           </aside>
-          <article
-            className="message-reading-panel"
-            aria-label="Mensagem selecionada"
-          >
-            {selectedMessage ? (
-              <>
-                <div className="message-reader-heading">
-                  <span className="section-kicker">
-                    <BookOpen size={14} /> MENSAGEM ENCONTRADA
-                  </span>
-                  <h2>{selectedMessage.title}</h2>
-                  <div className="message-reader-meta">
-                    <span>{selectedMessage.dateCode}</span>
-                  </div>
-                </div>
-                <div className="message-source-note">
-                  <span>Resultado da busca local</span>
-                  <p>
-                    O título e o código foram encontrados no índice público em
-                    português. Abra a fonte oficial para ler a transcrição
-                    completa.
-                  </p>
-                  <strong className="message-source-reference">
-                    {selectedMessage.dateCode} — {selectedMessage.title}
-                  </strong>
-                  <div className="message-source-actions">
-                    <a href={officialUrl} target="_blank" rel="noreferrer">
-                      Abrir The Table <ExternalLink size={14} />
-                    </a>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="message-reader-empty">
-                <span className="message-reader-mark">
-                  <BookOpen size={25} />
-                </span>
-                <span className="section-kicker">LEITURA DA MENSAGEM</span>
-                <h2>Pesquise e escolha uma mensagem.</h2>
-                <p>
-                  Digite um livro, título, código ou nome específico na barra ao
-                  lado.
-                </p>
-              </div>
-            )}
-          </article>
+          <FullMessageReader
+            message={selectedMessage}
+            currentIndex={selectedIndex}
+            totalMessages={filteredMessages.length}
+            loading={loading}
+            error={error}
+            nightMode={readerNightMode}
+            fontSize={readerFontSize}
+            onToggleNightMode={() => setReaderNightMode(value => !value)}
+            onFontSizeChange={setReaderFontSize}
+            onNavigate={navigateMessage}
+            onRetry={loadIndex}
+          />
         </section>
       </main>
       <footer className="site-footer">
