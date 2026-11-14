@@ -23,7 +23,11 @@ export default function SearchPage() {
       setActiveQuery(nextQuery);
     };
     window.addEventListener("popstate", syncFromHistory);
-    return () => window.removeEventListener("popstate", syncFromHistory);
+    window.addEventListener("hashchange", syncFromHistory);
+    return () => {
+      window.removeEventListener("popstate", syncFromHistory);
+      window.removeEventListener("hashchange", syncFromHistory);
+    };
   }, []);
 
   useEffect(() => {

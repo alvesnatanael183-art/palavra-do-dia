@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, BookOpen, ChevronRight, Search, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronRight, ExternalLink, Search, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import { bookHref, getBooks, getChapter, textFromContent, type BibleBook } from "@/lib/bible";
+import { isGithubPagesStatic, officialMessagesUrl } from "@/lib/deployment";
 
 const quickReads = [
   { label: "Salmo 91", book: "PSA", chapter: 91 },
@@ -126,7 +127,18 @@ export default function Home() {
           <article className="daily-reflection-card">
             <div className="reflection-label"><span>PALAVRA VIVA</span><span>·</span><span>REFLEXÃO ALINHADA A {dailyReading.reference}</span></div>
             <p>{dailyReading.reflection}</p>
-            <div className="reflection-footer"><span>Texto editorial original; não é transcrição literal.</span><Link href={`/mensagens?q=${encodeURIComponent("A Fé É o Firme Fundamento")}&tipo=frase`}>Mensagem relacionada: A Fé É o Firme Fundamento · 47-0412 <ArrowRight size={15} /></Link></div>
+            <div className="reflection-footer">
+              <span>Texto editorial original; não é transcrição literal.</span>
+              {isGithubPagesStatic ? (
+                <a href={officialMessagesUrl} target="_blank" rel="noreferrer">
+                  Mensagem relacionada: A Fé É o Firme Fundamento · 47-0412 <ExternalLink size={14} />
+                </a>
+              ) : (
+                <Link href={`/mensagens?q=${encodeURIComponent("A Fé É o Firme Fundamento")}&tipo=frase`}>
+                  Mensagem relacionada: A Fé É o Firme Fundamento · 47-0412 <ArrowRight size={15} />
+                </Link>
+              )}
+            </div>
           </article>
         </section>
 
@@ -134,17 +146,25 @@ export default function Home() {
           <div className="prophet-home-search">
             <div className="prophet-home-search-copy">
               <span className="section-kicker">MENSAGENS DO PROFETA</span>
-              <p>Pesquise por livro bíblico, palavra ou frase nas mensagens de William Marrion Branham.</p>
+              <p>{isGithubPagesStatic ? "A busca integrada não está disponível nesta versão estática. Pesquise no site oficial." : "Pesquise por livro bíblico, palavra ou frase nas mensagens de William Marrion Branham."}</p>
             </div>
-            <div className="prophet-home-search-control">
-              <form className="message-search-form prophet-home-search-form" role="search" aria-label="Pesquisar nas mensagens do profeta" onSubmit={submitProphetSearch}>
-                <Search size={19} className="message-search-icon" aria-hidden="true" />
-                <input type="search" list="prophet-message-book-list" maxLength={120} value={prophetQuery} onChange={(event) => { setProphetQuery(event.target.value); setProphetSearchError(""); }} placeholder="Ex.: Hebreus, Salmos, fé, oração…" aria-label="Livro, palavra ou frase para buscar nas mensagens do profeta" aria-invalid={Boolean(prophetSearchError)} aria-describedby={prophetSearchError ? "prophet-home-search-error" : undefined} />
-                <button className="message-search-submit" type="submit">Buscar <ArrowRight size={15} /></button>
-              </form>
-              <datalist id="prophet-message-book-list">{books.map((book) => <option key={book.id} value={book.name} />)}</datalist>
-              {prophetSearchError && <p className="prophet-home-search-error" id="prophet-home-search-error" role="alert">{prophetSearchError}</p>}
-            </div>
+            {isGithubPagesStatic ? (
+              <div className="prophet-home-search-control">
+                <a className="prophet-static-link" href={officialMessagesUrl} target="_blank" rel="noreferrer">
+                  Pesquisar no The Table <ExternalLink size={15} />
+                </a>
+              </div>
+            ) : (
+              <div className="prophet-home-search-control">
+                <form className="message-search-form prophet-home-search-form" role="search" aria-label="Pesquisar nas mensagens do profeta" onSubmit={submitProphetSearch}>
+                  <Search size={19} className="message-search-icon" aria-hidden="true" />
+                  <input type="search" list="prophet-message-book-list" maxLength={120} value={prophetQuery} onChange={(event) => { setProphetQuery(event.target.value); setProphetSearchError(""); }} placeholder="Ex.: Hebreus, Salmos, fé, oração…" aria-label="Livro, palavra ou frase para buscar nas mensagens do profeta" aria-invalid={Boolean(prophetSearchError)} aria-describedby={prophetSearchError ? "prophet-home-search-error" : undefined} />
+                  <button className="message-search-submit" type="submit">Buscar <ArrowRight size={15} /></button>
+                </form>
+                <datalist id="prophet-message-book-list">{books.map((book) => <option key={book.id} value={book.name} />)}</datalist>
+                {prophetSearchError && <p className="prophet-home-search-error" id="prophet-home-search-error" role="alert">{prophetSearchError}</p>}
+              </div>
+            )}
           </div>
           <div className="books-title-row">
             <div><span className="section-kicker">EXPLORE AS ESCRITURAS</span><p>Escolha um livro para começar sua leitura.</p></div>
@@ -164,7 +184,13 @@ export default function Home() {
 
         <section className="reading-callout page-width"><div className="callout-icon"><BookOpen size={23} /></div><div><span className="section-kicker">UM CAPÍTULO POR VEZ</span><h2>LER  OS LIVROS SAGRADOS</h2><p>As referências têm links próprios para você continuar de onde parou ou compartilhar um versículo.</p></div><Link className="callout-link" href={bookHref("JHN", 1)}>Começar a leitura <ArrowRight size={16} /></Link></section>
       </main>
-      <footer className="site-footer"><div className="footer-inner"><Link href="/" className="brand footer-brand"><span className="brand-mark"><BookOpen size={18} /></span><span className="brand-name">Palavra <b>Viva</b></span></Link><p>Texto bíblico: <a href="https://ebible.org/Scriptures/details.php?id=porbrbsl" target="_blank" rel="noreferrer">Bíblia Portuguesa Mundial</a> · Fonte: <a href="https://bible.helloao.org/docs/pt/" target="_blank" rel="noreferrer">API Bíblica de Uso Gratuito</a>.</p><a href="#top" className="back-top">Voltar ao topo ↑</a></div></footer>
+      <footer className="site-footer">
+        <div className="footer-inner">
+          <Link href="/" className="brand footer-brand"><span className="brand-mark"><BookOpen size={18} /></span><span className="brand-name">Palavra <b>Viva</b></span></Link>
+          <p>Texto bíblico: <a href="https://ebible.org/Scriptures/details.php?id=porbrbsl" target="_blank" rel="noreferrer">Bíblia Portuguesa Mundial</a> · Fonte: <a href="https://bible.helloao.org/docs/pt/" target="_blank" rel="noreferrer">API Bíblica de Uso Gratuito</a>.</p>
+          <a href="#top" className="back-top" onClick={event => { event.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Voltar ao topo ↑</a>
+        </div>
+      </footer>
       <div className="sr-only" id="top">Topo da página</div>
     </div>
   );

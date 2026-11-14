@@ -81,3 +81,14 @@
 - Habilitar o servidor sem habilitar nem criar banco de dados.
 - Validar consultas e encaminhar apenas a rota de pesquisa permitida do The Table; não armazenar nem expor a chave ou copiar o acervo integral.
 - Gerar e servir o frontend estático no contêiner Express, junto do endpoint `/api/*`; preservar as rotas de página com fallback SPA.
+
+
+## Publicação estática no GitHub Pages — em andamento
+- “Desejo publicar este site no GitHub Pages para que ele fique acessível online.”
+- O usuário escolheu: “1. Apenas GitHub Pages estático” e aceitou que a busca/leitura integrada de mensagens não funcionará no Pages sem o backend.
+- Publicar uma versão estática do site em `https://alvesnatanael183-art.github.io/palavra-do-dia/`, mantendo a leitura bíblica dos livros/capítulos/versículos, a busca bíblica e o versículo/reflexão diária.
+- A versão estática deve usar o caminho do projeto `/palavra-do-dia/` e permitir navegação da SPA por rotas compatíveis com GitHub Pages, sem depender do servidor Express.
+- No GitHub Pages, não invocar a integração/API de mensagens do projeto nem apresentar erros de API: explicar que busca, catálogo e transcrição integrada de mensagens não estão disponíveis nessa versão e oferecer um link para abrir o The Table oficial (`https://table.branham.org/#/pt/main`).
+- Preservar a versão com Express no Manus, onde a busca, o catálogo A–Z e a leitura integral existentes continuam disponíveis.
+- Preparar os arquivos estáticos na raiz do ramo de publicação `gh-pages` e configurar a origem do GitHub Pages para esse ramo/raiz, sem alterar a visibilidade privada do repositório.
+- Se o plano do GitHub não permitir Pages a partir deste repositório privado, não tornar o repositório público nem criar outro repositório público sem autorização explícita do usuário.

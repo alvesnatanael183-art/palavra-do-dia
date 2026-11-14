@@ -111,6 +111,13 @@ button { color: inherit; }
 .prophet-home-search-control { min-width: 0; }
 .prophet-home-search-form { width: 100%; }
 .prophet-home-search-error { margin: 6px 0 0; color: #9b4141; font-size: 11px; }
+.prophet-static-link { min-height: 39px; padding: 10px 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--blue); border-radius: 8px; background: var(--blue); color: #fff; font-size: 11px; font-weight: 650; }
+.prophet-static-link:hover { filter: brightness(.94); }
+.static-message-notice { min-height: 250px; margin-top: 20px; padding: clamp(20px,4vw,38px); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 13px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper); }
+.static-message-notice > svg { color: #79a8bd; }
+.static-message-notice h2 { margin: 0; color: var(--ink); font-family: Georgia,Times New Roman,serif; font-size: clamp(22px,3vw,30px); font-weight: 400; }
+.static-message-notice p { max-width: 650px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.static-message-home-link { display: inline-flex; align-items: center; gap: 7px; color: var(--blue); font-size: 11px; font-weight: 650; }
 .books-title-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 26px; }
 .reading-callout h2 { margin: 10px 0 7px; font-family: Georgia, "Times New Roman", serif; font-size: 34px; line-height: 1.1; letter-spacing: -.04em; font-weight: 400; }
 .books-title-row p, .reading-callout p { margin: 0; color: var(--muted); font-size: 13px; }

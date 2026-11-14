@@ -11,6 +11,7 @@ import {
 import SiteHeader from "@/components/SiteHeader";
 import FullMessageReader from "@/components/FullMessageReader";
 import MessageCatalog from "@/components/MessageCatalog";
+import { isGithubPagesStatic } from "@/lib/deployment";
 import {
   getProphetMessageCatalog,
   readProphetMessage,
@@ -28,6 +29,57 @@ const titleCollator = new Intl.Collator("pt-BR", {
   numeric: true,
 });
 const officialUrl = "https://table.branham.org/#/pt/main";
+
+function StaticMessagesPage() {
+  return (
+    <div className="site-shell">
+      <SiteHeader />
+      <main className="messages-page page-width">
+        <div className="reader-breadcrumb">
+          <Link href="/">Início</Link>
+          <span>/</span>
+          <span>Mensagens do profeta</span>
+        </div>
+        <div className="messages-page-intro">
+          <span className="section-kicker">
+            <Sparkles size={14} /> ARQUIVO DE MENSAGENS
+          </span>
+          <h1>Mensagens do profeta</h1>
+          <p>
+            Nesta publicação estática, a busca integrada, o catálogo A–Z e a
+            leitura de transcrições não estão disponíveis porque dependem do
+            servidor do Palavra Viva.
+          </p>
+        </div>
+        <section className="static-message-notice" role="note">
+          <BookOpen size={25} aria-hidden="true" />
+          <h2>Consulte a fonte oficial.</h2>
+          <p>
+            Abra o The Table para pesquisar as mensagens de William Marrion
+            Branham. A leitura bíblica e a busca nas Escrituras continuam
+            disponíveis neste site.
+          </p>
+          <a className="prophet-static-link" href={officialUrl} target="_blank" rel="noreferrer">
+            Abrir The Table <ExternalLink size={15} />
+          </a>
+          <Link href="/" className="static-message-home-link">
+            Voltar à leitura bíblica <ArrowRight size={15} />
+          </Link>
+        </section>
+      </main>
+      <footer className="site-footer">
+        <div className="footer-inner">
+          <Link href="/" className="brand footer-brand">
+            <span className="brand-mark"><BookOpen size={18} /></span>
+            <span className="brand-name">Palavra <b>Viva</b></span>
+          </Link>
+          <p>Fonte das mensagens: <a href={officialUrl} target="_blank" rel="noreferrer">The Table · Voice of God Recordings</a>.</p>
+          <Link href="/" className="back-top">Voltar ao início</Link>
+        </div>
+      </footer>
+    </div>
+  );
+}
 
 function readHistory(): string[] {
   try {
@@ -81,7 +133,7 @@ function friendlyError(reason: unknown, fallback: string) {
   return reason instanceof Error ? reason.message : fallback;
 }
 
-export default function Messages() {
+function IntegratedMessages() {
   const [, setLocation] = useLocation();
   const params = new URLSearchParams(window.location.search);
   const initialQuery = params.get("q") ?? "";
@@ -663,4 +715,8 @@ export default function Messages() {
       </footer>
     </div>
   );
+}
+
+export default function Messages() {
+  return isGithubPagesStatic ? <StaticMessagesPage /> : <IntegratedMessages />;
 }

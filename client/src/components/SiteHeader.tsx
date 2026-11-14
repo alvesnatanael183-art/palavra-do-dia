@@ -1,13 +1,27 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { BookOpen, Menu, Moon, Search, Sun, X } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isGithubPagesStatic } from "@/lib/deployment";
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [location, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const dark = theme === "dark";
   const closeMenu = () => setMenuOpen(false);
+
+  function navigateToHomeSection(section: string) {
+    closeMenu();
+    if (location !== "/") setLocation("/");
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        document
+          .getElementById(section)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
 
   return (
     <header className="site-header">
@@ -18,8 +32,16 @@ export default function SiteHeader() {
           <span className="translation-badge">BPM</span>
         </Link>
         <nav className={`main-nav ${menuOpen ? "is-open" : ""}`} aria-label="Navegação principal">
-          <a href="/#livros" onClick={closeMenu}>Livros</a>
-          <a href="/#versiculo" onClick={closeMenu}>Versículo do dia</a>
+          <a href={isGithubPagesStatic ? "#/" : "/#livros"} onClick={event => {
+            if (!isGithubPagesStatic) { closeMenu(); return; }
+            event.preventDefault();
+            navigateToHomeSection("livros");
+          }}>Livros</a>
+          <a href={isGithubPagesStatic ? "#/" : "/#versiculo"} onClick={event => {
+            if (!isGithubPagesStatic) { closeMenu(); return; }
+            event.preventDefault();
+            navigateToHomeSection("versiculo");
+          }}>Versículo do dia</a>
           <Link href="/leitura/GEN/1" onClick={closeMenu}>Leitura</Link>
           <Link href="/busca" onClick={closeMenu}>Busca</Link>
           <Link href="/mensagens" onClick={closeMenu}>Mensagens</Link>
