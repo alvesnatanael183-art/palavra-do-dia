@@ -593,6 +593,15 @@ button { color: inherit; }
   line-height: 1;
 }
 .message-catalog-search button:hover { background: var(--blue-pale); }
+.static-message-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.static-message-filter-grid .message-catalog-search {
+  min-width: 0;
+  margin-top: 8px;
+}
 .message-catalog-empty {
   min-height: 150px;
   padding: 22px;
@@ -685,6 +694,7 @@ button { color: inherit; }
 @media (max-width: 600px) {
   .message-catalog-search { min-height: 40px; margin: 10px 10px 0; padding-inline: 8px; }
   .message-catalog-search input { font-size: 10px; }
+  .static-message-filter-grid { grid-template-columns: 1fr; gap: 0; }
   .full-message-tools { min-height: 46px; padding: 7px 12px; }
   .full-message-night-toggle { gap: 5px; padding-inline: 8px; font-size: 8px; }
   .full-message-font-controls { gap: 4px; }
