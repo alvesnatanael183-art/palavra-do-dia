@@ -12,7 +12,8 @@ import { publicPlatformScript } from "./server/_core/publicConfig";
 // =============================================================================
 
 const PROJECT_ROOT = import.meta.dirname;
-const isGithubPagesStaticBuild = process.env.VITE_GITHUB_PAGES_STATIC === "true";
+const isGithubPagesStaticBuild =
+  process.env.VITE_GITHUB_PAGES_STATIC === "true";
 const LOG_DIR = path.join(PROJECT_ROOT, ".manus-logs");
 const MAX_LOG_SIZE_BYTES = 1 * 1024 * 1024; // 1MB per log file
 const TRIM_TARGET_BYTES = Math.floor(MAX_LOG_SIZE_BYTES * 0.6); // Trim to 60% to avoid constant re-trimming
@@ -57,7 +58,7 @@ function writeToLogFile(source: LogSource, entries: unknown[]) {
   const logPath = path.join(LOG_DIR, `${source}.log`);
 
   // Format entries with timestamps
-  const lines = entries.map((entry) => {
+  const lines = entries.map(entry => {
     const ts = new Date().toISOString();
     return `[${ts}] ${JSON.stringify(entry)}`;
   });
@@ -132,7 +133,7 @@ function vitePluginManusDebugCollector(): Plugin {
         }
 
         let body = "";
-        req.on("data", (chunk) => {
+        req.on("data", chunk => {
           body += chunk.toString();
         });
 
@@ -164,15 +165,25 @@ function vitePluginPublicPlatformConfig(): Plugin {
       });
     },
     generateBundle() {
-      this.emitFile({ type: "asset", fileName: "api/platform/config.js", source: publicPlatformScript() });
+      this.emitFile({
+        type: "asset",
+        fileName: "api/platform/config.js",
+        source: publicPlatformScript(),
+      });
     },
   };
 }
 
-const plugins = [vitePluginPublicPlatformConfig(), react(), tailwindcss(), jsxLocPlugin(), vitePluginManusDebugCollector()];
+const plugins = [
+  vitePluginPublicPlatformConfig(),
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusDebugCollector(),
+];
 
 export default defineConfig({
-  base: isGithubPagesStaticBuild ? "/palavra-do-dia/" : "/",
+  base: isGithubPagesStaticBuild ? "./" : "/",
   plugins,
   resolve: {
     alias: {

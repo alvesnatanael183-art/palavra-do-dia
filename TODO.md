@@ -87,8 +87,17 @@
 - “Desejo publicar este site no GitHub Pages para que ele fique acessível online.”
 - O usuário escolheu: “1. Apenas GitHub Pages estático” e aceitou que a busca/leitura integrada de mensagens não funcionará no Pages sem o backend.
 - Publicar uma versão estática do site em `https://alvesnatanael183-art.github.io/palavra-do-dia/`, mantendo a leitura bíblica dos livros/capítulos/versículos, a busca bíblica e o versículo/reflexão diária.
-- A versão estática deve usar o caminho do projeto `/palavra-do-dia/` e permitir navegação da SPA por rotas compatíveis com GitHub Pages, sem depender do servidor Express.
+- A versão estática deve continuar funcionando no caminho do projeto `/palavra-do-dia/` e permitir servir os assets na raiz de domínio personalizado usando base relativa `./`; a SPA deve usar rotas compatíveis com GitHub Pages, sem depender do servidor Express.
 - No GitHub Pages, não invocar a integração/API de mensagens do projeto nem apresentar erros de API: explicar que busca, catálogo e transcrição integrada de mensagens não estão disponíveis nessa versão e oferecer um link para abrir o The Table oficial (`https://table.branham.org/#/pt/main`).
 - Preservar a versão com Express no Manus, onde a busca, o catálogo A–Z e a leitura integral existentes continuam disponíveis.
 - Preparar os arquivos estáticos na raiz do ramo de publicação `gh-pages` e configurar a origem do GitHub Pages para esse ramo/raiz. Neste caso, o proprietário autorizou explicitamente tornar público o repositório inteiro e confirmou os efeitos avisados pelo GitHub.
 - Não tornar o repositório público sem autorização explícita; se o plano do GitHub não permitir Pages a partir do repositório privado, pedir uma decisão ao proprietário antes de alterar a visibilidade ou criar outro repositório público.
+
+
+## Automação de build e deploy do GitHub Pages — em andamento
+- O usuário pediu: “Como automatizar o build e o deploy usando o GitHub Actions para esta branch gh-pages”.
+- Ao receber push na branch `main`, compilar a versão estática com `pnpm build:github-pages` e publicar os arquivos públicos necessários de `dist/public` na raiz da branch `gh-pages`; omitir `__manus__/`, `manus-routes.json` e `.gitkeep`; oferecer também execução manual por `workflow_dispatch`.
+- Manter GitHub Pages configurado para `gh-pages` / raiz e limitar os gatilhos do workflow a `main` para que os commits de saída em `gh-pages` não iniciem builds recursivos.
+- Usar base de asset relativa `./` no build estático para funcionar no endereço de projeto `/palavra-do-dia/` e na raiz de domínio personalizado; preservar `.nojekyll` e um `CNAME` já existente.
+- Não usar `GITHUB_TOKEN` para atualizar `gh-pages`, pois um push com essa credencial não dispara o build Pages baseado em branch. Usar apenas o segredo `GH_PAGES_TOKEN`, sem copiar o valor para arquivos ou logs; o proprietário o cadastrará em **Settings → Secrets and variables → Actions** como token de acesso fino restrito a este repositório, com permissão `Contents: Read and write`.
+- A primeira publicação automática só poderá concluir depois que o segredo estiver cadastrado; então o workflow deverá ser executado novamente. O GitHub já fornece o endereço `github.io`; um domínio personalizado exige registro e configuração DNS fora do GitHub.

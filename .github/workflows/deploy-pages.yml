@@ -1,0 +1,94 @@
+name: Build and deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages-gh-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build static site and deploy gh-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.0
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build static site
+        run: pnpm build:github-pages
+
+      - name: Publish dist/public to gh-pages
+        env:
+          GH_PAGES_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GH_PAGES_TOKEN:-}" ]; then
+            echo "::error title=Missing secret::Add GH_PAGES_TOKEN under Settings > Secrets and variables > Actions. Use a fine-grained token limited to this repository with Contents: read and write."
+            exit 1
+          fi
+
+          git fetch --no-tags origin '+refs/heads/gh-pages:refs/remotes/origin/gh-pages'
+          deploy_dir="$RUNNER_TEMP/gh-pages"
+          git worktree add --detach "$deploy_dir" refs/remotes/origin/gh-pages
+
+          if [ -f "$deploy_dir/CNAME" ]; then
+            cp "$deploy_dir/CNAME" dist/public/CNAME
+          fi
+
+          find "$deploy_dir" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf -- {} +
+          cp -a dist/public/. "$deploy_dir"/
+
+          # Keep Manus development diagnostics and its internal route manifest private.
+          rm -rf "$deploy_dir/__manus__"
+          rm -f "$deploy_dir/manus-routes.json" "$deploy_dir/.gitkeep"
+
+          git -C "$deploy_dir" config user.name "github-actions[bot]"
+          git -C "$deploy_dir" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$deploy_dir" add --all
+
+          if git -C "$deploy_dir" diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+
+          git -C "$deploy_dir" commit -m "Deploy GitHub Pages from ${GITHUB_SHA}"
+
+          cat > "$RUNNER_TEMP/git-credential-helper" <<'EOF'
+          #!/bin/sh
+          if [ "$1" = "get" ]; then
+            printf 'username=x-access-token\n'
+            printf 'password=%s\n' "$GH_PAGES_TOKEN"
+            printf '\n'
+          fi
+          EOF
+          chmod 700 "$RUNNER_TEMP/git-credential-helper"
+          git config --global credential.helper "$RUNNER_TEMP/git-credential-helper"
+
+          git -C "$deploy_dir" push origin HEAD:gh-pages
