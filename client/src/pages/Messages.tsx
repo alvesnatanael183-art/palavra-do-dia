@@ -30,9 +30,12 @@ const titleCollator = new Intl.Collator("pt-BR", {
 });
 const officialUrl = "https://table.branham.org/#/pt/main";
 
-type StaticIndexedMessage = ProphetFullMessage & {
+type StaticIndexedMessage = {
+  productId: number;
+  dateCode: string;
+  title: string;
   bookTitle: string;
-  text: string;
+  wordCounts: Record<string, number>;
 };
 
 function normalizeMessageSearch(value: string) {
@@ -43,12 +46,37 @@ function normalizeMessageSearch(value: string) {
     .trim();
 }
 
-function countWordOccurrences(text: string, query: string) {
+function countWordOccurrences(
+  textOrCounts: string | Record<string, number>,
+  query: string
+) {
   const words = normalizeMessageSearch(query).split(/\s+/).filter(Boolean);
   if (!words.length) return 0;
-  const tokens = normalizeMessageSearch(text).split(/\s+/).filter(Boolean);
+  const counts =
+    typeof textOrCounts === "string"
+      ? normalizeMessageSearch(textOrCounts)
+          .split(/\s+/)
+          .filter(Boolean)
+          .reduce<Record<string, number>>((result, token) => {
+            result[token] = (result[token] ?? 0) + 1;
+            return result;
+          }, {})
+      : textOrCounts;
   return words.reduce(
-    (total, word) => total + tokens.filter(token => token === word).length,
+    (total, word) =>
+      total +
+      Object.entries(counts).reduce((sum, [token, count]) => {
+        if (token === word) return sum + count;
+        if (word.length >= 4 && Math.abs(token.length - word.length) <= 1) {
+          let differences = 0;
+          const size = Math.max(token.length, word.length);
+          for (let index = 0; index < size; index += 1) {
+            if (token[index] !== word[index]) differences += 1;
+          }
+          if (differences <= 1) return sum + count;
+        }
+        return sum;
+      }, 0),
     0
   );
 }
@@ -64,6 +92,11 @@ function StaticMessagesPage() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [fullMessage, setFullMessage] = useState<ProphetFullMessage | null>(
+    null
+  );
+  const [fullLoading, setFullLoading] = useState(false);
+  const [fullError, setFullError] = useState("");
   const [readerNightMode, setReaderNightMode] = useState(false);
   const [readerFontSize, setReaderFontSize] = useState(16);
 
@@ -84,7 +117,7 @@ function StaticMessagesPage() {
         Promise.all(
           (manifest.parts ?? []).map(part =>
             fetch(
-              new URL(`./data/messages-index/${part}`, window.location.href),
+              new URL(`./data/messages-search/${part}`, window.location.href),
               { cache: "no-store" }
             ).then(response => {
               if (!response.ok)
@@ -117,6 +150,36 @@ function StaticMessagesPage() {
     loadIndex();
   }, []);
 
+  useEffect(() => {
+    if (selectedProductId === null) {
+      setFullMessage(null);
+      return;
+    }
+    setFullLoading(true);
+    setFullError("");
+    fetch(
+      new URL(
+        `./data/messages-full/${selectedProductId}.json`,
+        window.location.href
+      ),
+      { cache: "force-cache" }
+    )
+      .then(response => {
+        if (!response.ok)
+          throw new Error("Não foi possível abrir a mensagem integral.");
+        return response.json() as Promise<ProphetFullMessage>;
+      })
+      .then(setFullMessage)
+      .catch(reason =>
+        setFullError(
+          reason instanceof Error
+            ? reason.message
+            : "Não foi possível abrir a mensagem integral."
+        )
+      )
+      .finally(() => setFullLoading(false));
+  }, [selectedProductId]);
+
   const normalizedQuery = normalizeMessageSearch(query);
   const normalizedTitleFilter = normalizeMessageSearch(activeTitleFilter);
   const normalizedCodeFilter = codeFilter.trim().toLocaleLowerCase("pt-BR");
@@ -125,18 +188,24 @@ function StaticMessagesPage() {
     return messages
       .map(message => ({
         message,
-        occurrences: countWordOccurrences(message.text, activeTitleFilter),
+        occurrences: countWordOccurrences(
+          message.wordCounts,
+          activeTitleFilter
+        ),
       }))
       .filter(({ message }) => {
         const title = normalizeMessageSearch(message.title);
         const book = normalizeMessageSearch(message.bookTitle);
-        const text = normalizeMessageSearch(message.text);
-        const searchableText = `${book} ${title} ${message.dateCode} ${text}`;
+        const searchableText = `${book} ${title} ${message.dateCode} ${Object.keys(message.wordCounts).join(" ")}`;
         const generalMatch =
           !normalizedQuery || searchableText.includes(normalizedQuery);
         const titleMatch =
           titleWords.length === 0 ||
-          titleWords.some(word => searchableText.includes(word));
+          titleWords.some(
+            word =>
+              countWordOccurrences(message.wordCounts, word) > 0 ||
+              searchableText.includes(word)
+          );
         const codeMatch =
           !normalizedCodeFilter ||
           message.dateCode
@@ -152,8 +221,7 @@ function StaticMessagesPage() {
       .map(({ message }) => message);
   }, [messages, normalizedCodeFilter, normalizedQuery, normalizedTitleFilter]);
 
-  const selectedMessage =
-    messages.find(message => message.productId === selectedProductId) ?? null;
+  const selectedMessage = fullMessage;
   const selectedIndex = selectedMessage
     ? filteredMessages.findIndex(
         message => message.productId === selectedMessage.productId
@@ -337,10 +405,10 @@ function StaticMessagesPage() {
                         <small>
                           {activeTitleFilter &&
                           countWordOccurrences(
-                            message.text,
+                            message.wordCounts,
                             activeTitleFilter
                           ) > 0
-                            ? `${countWordOccurrences(message.text, activeTitleFilter)} ocorrência(s) · `
+                            ? `${countWordOccurrences(message.wordCounts, activeTitleFilter)} ocorrência(s) · `
                             : ""}
                           {message.bookTitle ? `${message.bookTitle} · ` : ""}
                           {message.dateCode}
@@ -357,8 +425,8 @@ function StaticMessagesPage() {
             message={selectedMessage}
             currentIndex={selectedIndex}
             totalMessages={filteredMessages.length}
-            loading={loading}
-            error={error}
+            loading={loading || fullLoading}
+            error={error || fullError}
             nightMode={readerNightMode}
             fontSize={readerFontSize}
             onToggleNightMode={() => setReaderNightMode(value => !value)}
