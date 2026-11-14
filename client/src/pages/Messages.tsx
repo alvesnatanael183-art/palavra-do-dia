@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
 import {
   ArrowRight,
@@ -12,6 +12,7 @@ import SiteHeader from "@/components/SiteHeader";
 import FullMessageReader from "@/components/FullMessageReader";
 import MessageCatalog from "@/components/MessageCatalog";
 import { isGithubPagesStatic } from "@/lib/deployment";
+import { staticMessageCatalog } from "@/lib/staticMessageCatalog";
 import {
   getProphetMessageCatalog,
   readProphetMessage,
@@ -31,6 +32,55 @@ const titleCollator = new Intl.Collator("pt-BR", {
 const officialUrl = "https://table.branham.org/#/pt/main";
 
 function StaticMessagesPage() {
+  const [query, setQuery] = useState("");
+  const [titleFilter, setTitleFilter] = useState("");
+  const [codeFilter, setCodeFilter] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
+  const normalizedQuery = query
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR")
+    .trim();
+  const normalizedTitleFilter = titleFilter
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR")
+    .trim();
+  const normalizedCodeFilter = codeFilter.trim().toLocaleLowerCase("pt-BR");
+  const filteredMessages = useMemo(() => {
+    return staticMessageCatalog.filter(
+      message =>
+        message.title
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLocaleLowerCase("pt-BR")
+          .includes(normalizedTitleFilter) &&
+        message.dateCode
+          .toLocaleLowerCase("pt-BR")
+          .includes(normalizedCodeFilter) &&
+        (!normalizedQuery ||
+          `${message.title} ${message.dateCode}`
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLocaleLowerCase("pt-BR")
+            .includes(normalizedQuery))
+    );
+  }, [normalizedCodeFilter, normalizedQuery, normalizedTitleFilter]);
+  const selectedMessage = staticMessageCatalog.find(
+    message => message.productId === selectedProductId
+  );
+  const suggestions = [
+    "Gênesis",
+    "Êxodo",
+    "Salmos",
+    "João",
+    "Romanos",
+    "Hebreus",
+    "fé",
+    "oração",
+  ];
   return (
     <div className="site-shell">
       <SiteHeader />
@@ -46,35 +96,194 @@ function StaticMessagesPage() {
           </span>
           <h1>Mensagens do profeta</h1>
           <p>
-            Nesta publicação estática, a busca integrada, o catálogo A–Z e a
-            leitura de transcrições não estão disponíveis porque dependem do
-            servidor do Palavra Viva.
+            Pesquise diretamente neste site por livro bíblico, título, código da
+            mensagem ou nome específico.
           </p>
         </div>
-        <section className="static-message-notice" role="note">
-          <BookOpen size={25} aria-hidden="true" />
-          <h2>Consulte a fonte oficial.</h2>
-          <p>
-            Abra o The Table para pesquisar as mensagens de William Marrion
-            Branham. A leitura bíblica e a busca nas Escrituras continuam
-            disponíveis neste site.
-          </p>
-          <a className="prophet-static-link" href={officialUrl} target="_blank" rel="noreferrer">
-            Abrir The Table <ExternalLink size={15} />
-          </a>
-          <Link href="/" className="static-message-home-link">
-            Voltar à leitura bíblica <ArrowRight size={15} />
-          </Link>
+        <section
+          className="message-workspace static-message-workspace"
+          aria-live="polite"
+        >
+          <aside
+            className="message-results-panel"
+            aria-label="Busca de mensagens do profeta"
+          >
+            <div className="message-panel-heading">
+              <div>
+                <span className="section-kicker">BUSCA DIRETA</span>
+                <h2>Livros e nomes</h2>
+              </div>
+              <span className="message-count">
+                {filteredMessages.length.toLocaleString("pt-BR")} de{" "}
+                {staticMessageCatalog.length.toLocaleString("pt-BR")}
+              </span>
+            </div>
+            <div className="message-catalog-search">
+              <Search size={16} aria-hidden="true" />
+              <input
+                type="search"
+                maxLength={120}
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+                placeholder="Ex.: Salmos, João, fé ou um nome…"
+                aria-label="Pesquisar mensagens por livro, título, código ou nome"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label="Limpar pesquisa"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <div className="static-message-filter-grid">
+              <label className="message-catalog-search">
+                <span className="sr-only">Filtrar por título</span>
+                <input
+                  type="search"
+                  maxLength={120}
+                  value={titleFilter}
+                  onChange={event => setTitleFilter(event.target.value)}
+                  placeholder="Filtrar por título…"
+                  aria-label="Filtrar mensagens por título"
+                />
+                {titleFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setTitleFilter("")}
+                    aria-label="Limpar filtro de título"
+                  >
+                    ×
+                  </button>
+                )}
+              </label>
+              <label className="message-catalog-search">
+                <span className="sr-only">Filtrar por código</span>
+                <input
+                  type="search"
+                  maxLength={40}
+                  value={codeFilter}
+                  onChange={event => setCodeFilter(event.target.value)}
+                  placeholder="Filtrar por código…"
+                  aria-label="Filtrar mensagens por código"
+                />
+                {codeFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setCodeFilter("")}
+                    aria-label="Limpar filtro de código"
+                  >
+                    ×
+                  </button>
+                )}
+              </label>
+            </div>
+            <div className="message-discovery-row static-message-suggestions">
+              <span>Exemplos</span>
+              {suggestions.map(item => (
+                <button key={item} type="button" onClick={() => setQuery(item)}>
+                  {item}
+                </button>
+              ))}
+            </div>
+            {filteredMessages.length === 0 ? (
+              <div className="message-catalog-empty" role="status">
+                <strong>Nenhuma mensagem encontrada.</strong>
+                <p>
+                  Tente o nome de um livro, uma palavra ou o código da mensagem.
+                </p>
+              </div>
+            ) : (
+              <ul className="message-catalog-list">
+                {filteredMessages.map(message => (
+                  <li key={message.productId}>
+                    <button
+                      type="button"
+                      className={`message-catalog-item ${selectedProductId === message.productId ? "selected" : ""}`}
+                      onClick={() => setSelectedProductId(message.productId)}
+                      aria-pressed={selectedProductId === message.productId}
+                    >
+                      <span className="message-catalog-item-copy">
+                        <strong>{message.title}</strong>
+                        <small>{message.dateCode}</small>
+                      </span>
+                      <ArrowRight size={15} aria-hidden="true" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </aside>
+          <article
+            className="message-reading-panel"
+            aria-label="Mensagem selecionada"
+          >
+            {selectedMessage ? (
+              <>
+                <div className="message-reader-heading">
+                  <span className="section-kicker">
+                    <BookOpen size={14} /> MENSAGEM ENCONTRADA
+                  </span>
+                  <h2>{selectedMessage.title}</h2>
+                  <div className="message-reader-meta">
+                    <span>{selectedMessage.dateCode}</span>
+                  </div>
+                </div>
+                <div className="message-source-note">
+                  <span>Resultado da busca local</span>
+                  <p>
+                    O título e o código foram encontrados no índice público em
+                    português. Abra a fonte oficial para ler a transcrição
+                    completa.
+                  </p>
+                  <strong className="message-source-reference">
+                    {selectedMessage.dateCode} — {selectedMessage.title}
+                  </strong>
+                  <div className="message-source-actions">
+                    <a href={officialUrl} target="_blank" rel="noreferrer">
+                      Abrir The Table <ExternalLink size={14} />
+                    </a>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="message-reader-empty">
+                <span className="message-reader-mark">
+                  <BookOpen size={25} />
+                </span>
+                <span className="section-kicker">LEITURA DA MENSAGEM</span>
+                <h2>Pesquise e escolha uma mensagem.</h2>
+                <p>
+                  Digite um livro, título, código ou nome específico na barra ao
+                  lado.
+                </p>
+              </div>
+            )}
+          </article>
         </section>
       </main>
       <footer className="site-footer">
         <div className="footer-inner">
           <Link href="/" className="brand footer-brand">
-            <span className="brand-mark"><BookOpen size={18} /></span>
-            <span className="brand-name">Palavra <b>Viva</b></span>
+            <span className="brand-mark">
+              <BookOpen size={18} />
+            </span>
+            <span className="brand-name">
+              Palavra <b>Viva</b>
+            </span>
           </Link>
-          <p>Fonte das mensagens: <a href={officialUrl} target="_blank" rel="noreferrer">The Table · Voice of God Recordings</a>.</p>
-          <Link href="/" className="back-top">Voltar ao início</Link>
+          <p>
+            Fonte das mensagens:{" "}
+            <a href={officialUrl} target="_blank" rel="noreferrer">
+              The Table · Voice of God Recordings
+            </a>
+            .
+          </p>
+          <Link href="/" className="back-top">
+            Voltar ao início
+          </Link>
         </div>
       </footer>
     </div>
