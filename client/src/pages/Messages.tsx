@@ -120,7 +120,7 @@ function StaticMessagesPage() {
         !normalizedQuery || searchableText.includes(normalizedQuery);
       const titleMatch =
         titleWords.length === 0 ||
-        titleWords.every(word => searchableText.includes(word));
+        titleWords.some(word => searchableText.includes(word));
       const codeMatch =
         !normalizedCodeFilter ||
         message.dateCode
