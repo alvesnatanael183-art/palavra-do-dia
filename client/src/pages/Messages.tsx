@@ -43,10 +43,21 @@ function normalizeMessageSearch(value: string) {
     .trim();
 }
 
+function countWordOccurrences(text: string, query: string) {
+  const words = normalizeMessageSearch(query).split(/\s+/).filter(Boolean);
+  if (!words.length) return 0;
+  const tokens = normalizeMessageSearch(text).split(/\s+/).filter(Boolean);
+  return words.reduce(
+    (total, word) => total + tokens.filter(token => token === word).length,
+    0
+  );
+}
+
 function StaticMessagesPage() {
   const [messages, setMessages] = useState<StaticIndexedMessage[]>([]);
   const [query, setQuery] = useState("");
   const [titleFilter, setTitleFilter] = useState("");
+  const [activeTitleFilter, setActiveTitleFilter] = useState("");
   const [codeFilter, setCodeFilter] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     null
@@ -107,27 +118,38 @@ function StaticMessagesPage() {
   }, []);
 
   const normalizedQuery = normalizeMessageSearch(query);
-  const normalizedTitleFilter = normalizeMessageSearch(titleFilter);
+  const normalizedTitleFilter = normalizeMessageSearch(activeTitleFilter);
   const normalizedCodeFilter = codeFilter.trim().toLocaleLowerCase("pt-BR");
   const filteredMessages = useMemo(() => {
     const titleWords = normalizedTitleFilter.split(/\s+/).filter(Boolean);
-    return messages.filter(message => {
-      const title = normalizeMessageSearch(message.title);
-      const book = normalizeMessageSearch(message.bookTitle);
-      const text = normalizeMessageSearch(message.text);
-      const searchableText = `${book} ${title} ${message.dateCode} ${text}`;
-      const generalMatch =
-        !normalizedQuery || searchableText.includes(normalizedQuery);
-      const titleMatch =
-        titleWords.length === 0 ||
-        titleWords.some(word => searchableText.includes(word));
-      const codeMatch =
-        !normalizedCodeFilter ||
-        message.dateCode
-          .toLocaleLowerCase("pt-BR")
-          .includes(normalizedCodeFilter);
-      return generalMatch && titleMatch && codeMatch;
-    });
+    return messages
+      .map(message => ({
+        message,
+        occurrences: countWordOccurrences(message.text, activeTitleFilter),
+      }))
+      .filter(({ message }) => {
+        const title = normalizeMessageSearch(message.title);
+        const book = normalizeMessageSearch(message.bookTitle);
+        const text = normalizeMessageSearch(message.text);
+        const searchableText = `${book} ${title} ${message.dateCode} ${text}`;
+        const generalMatch =
+          !normalizedQuery || searchableText.includes(normalizedQuery);
+        const titleMatch =
+          titleWords.length === 0 ||
+          titleWords.some(word => searchableText.includes(word));
+        const codeMatch =
+          !normalizedCodeFilter ||
+          message.dateCode
+            .toLocaleLowerCase("pt-BR")
+            .includes(normalizedCodeFilter);
+        return generalMatch && titleMatch && codeMatch;
+      })
+      .sort(
+        (left, right) =>
+          right.occurrences - left.occurrences ||
+          left.message.title.localeCompare(right.message.title, "pt-BR")
+      )
+      .map(({ message }) => message);
   }, [messages, normalizedCodeFilter, normalizedQuery, normalizedTitleFilter]);
 
   const selectedMessage =
@@ -152,6 +174,11 @@ function StaticMessagesPage() {
     if (selectedIndex === null || selectedIndex < 0) return;
     const next = filteredMessages[selectedIndex + offset];
     if (next) setSelectedProductId(next.productId);
+  }
+
+  function submitTitleSearch() {
+    setActiveTitleFilter(titleFilter.trim());
+    setSelectedProductId(null);
   }
 
   return (
@@ -213,26 +240,35 @@ function StaticMessagesPage() {
               )}
             </div>
             <div className="static-message-filter-grid">
-              <label className="message-catalog-search">
-                <span className="sr-only">Filtrar por título e conteúdo</span>
-                <input
-                  type="search"
-                  maxLength={120}
-                  value={titleFilter}
-                  onChange={event => setTitleFilter(event.target.value)}
-                  placeholder="Título ou palavras…"
-                  aria-label="Filtrar por título e todas as palavras do conteúdo"
-                />
-                {titleFilter && (
-                  <button
-                    type="button"
-                    onClick={() => setTitleFilter("")}
-                    aria-label="Limpar filtro de título"
-                  >
-                    ×
-                  </button>
-                )}
-              </label>
+              <div className="static-message-filter-action">
+                <label className="message-catalog-search">
+                  <span className="sr-only">Filtrar por título e conteúdo</span>
+                  <input
+                    type="search"
+                    maxLength={120}
+                    value={titleFilter}
+                    onChange={event => setTitleFilter(event.target.value)}
+                    placeholder="Título ou palavras…"
+                    aria-label="Filtrar por título e todas as palavras do conteúdo"
+                  />
+                  {titleFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setTitleFilter("")}
+                      aria-label="Limpar filtro de título"
+                    >
+                      ×
+                    </button>
+                  )}
+                </label>
+                <button
+                  type="button"
+                  onClick={submitTitleSearch}
+                  className="static-message-search-button"
+                >
+                  Pesquisar <ArrowRight size={14} />
+                </button>
+              </div>
               <label className="message-catalog-search">
                 <span className="sr-only">Filtrar por código</span>
                 <input
@@ -299,6 +335,13 @@ function StaticMessagesPage() {
                       <span className="message-catalog-item-copy">
                         <strong>{message.title}</strong>
                         <small>
+                          {activeTitleFilter &&
+                          countWordOccurrences(
+                            message.text,
+                            activeTitleFilter
+                          ) > 0
+                            ? `${countWordOccurrences(message.text, activeTitleFilter)} ocorrência(s) · `
+                            : ""}
                           {message.bookTitle ? `${message.bookTitle} · ` : ""}
                           {message.dateCode}
                         </small>
