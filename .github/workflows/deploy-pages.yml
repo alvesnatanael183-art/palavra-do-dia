@@ -78,4 +78,5 @@ jobs:
 
           git -C "$deploy_dir" commit -m "Deploy GitHub Pages from ${GITHUB_SHA}"
 
-          git -C "$deploy_dir" -c "http.extraHeader=AUTHORIZATION: bearer $GITHUB_TOKEN" push origin HEAD:gh-pages
+          git -C "$deploy_dir" remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git -C "$deploy_dir" push origin HEAD:gh-pages
