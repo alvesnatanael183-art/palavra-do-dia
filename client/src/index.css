@@ -3182,3 +3182,26 @@ button {
     font-size: 21px;
   }
 }
+
+.message-catalog-item-snippet {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+.message-catalog-item-snippet mark {
+  color: #075985;
+  background: #bae6fd;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.message-catalog-item-snippet.is-loading {
+  color: var(--soft-muted);
+  font-family: Inter, ui-sans-serif, sans-serif;
+  font-size: 9px;
+  font-style: italic;
+}

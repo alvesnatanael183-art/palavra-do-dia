@@ -407,24 +407,10 @@ export default function Home() {
             <div className="prophet-home-search-copy">
               <span className="section-kicker">MENSAGENS DO PROFETA</span>
               <p>
-                {isGithubPagesStatic
-                  ? "A busca integrada não está disponível nesta versão estática. Pesquise no site oficial."
-                  : "Pesquise por livro bíblico, palavra ou frase nas mensagens de William Marrion Branham."}
+                Pesquise por capítulo, tema, palavra ou trecho nas mensagens de William Marrion Branham.
               </p>
             </div>
-            {isGithubPagesStatic ? (
-              <div className="prophet-home-search-control">
-                <a
-                  className="prophet-static-link"
-                  href={officialMessagesUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Pesquisar no The Table <ExternalLink size={15} />
-                </a>
-              </div>
-            ) : (
-              <div className="prophet-home-search-control">
+            <div className="prophet-home-search-control">
                 <form
                   className="message-search-form prophet-home-search-form"
                   role="search"
@@ -445,8 +431,8 @@ export default function Home() {
                       setProphetQuery(event.target.value);
                       setProphetSearchError("");
                     }}
-                    placeholder="Ex.: Hebreus, Salmos, fé, oração…"
-                    aria-label="Livro, palavra ou frase para buscar nas mensagens do profeta"
+                    placeholder="Buscar capítulo, tema ou trecho…"
+                    aria-label="Buscar capítulo, tema ou trecho nas mensagens do profeta"
                     aria-invalid={Boolean(prophetSearchError)}
                     aria-describedby={
                       prophetSearchError
@@ -458,11 +444,13 @@ export default function Home() {
                     Buscar <ArrowRight size={15} />
                   </button>
                 </form>
-                <datalist id="prophet-message-book-list">
-                  {books.map(book => (
-                    <option key={book.id} value={book.name} />
-                  ))}
-                </datalist>
+                {!isGithubPagesStatic && (
+                  <datalist id="prophet-message-book-list">
+                    {books.map(book => (
+                      <option key={book.id} value={book.name} />
+                    ))}
+                  </datalist>
+                )}
                 {prophetSearchError && (
                   <p
                     className="prophet-home-search-error"
@@ -473,7 +461,6 @@ export default function Home() {
                   </p>
                 )}
               </div>
-            )}
           </div>
           <div className="books-title-row">
             <div>

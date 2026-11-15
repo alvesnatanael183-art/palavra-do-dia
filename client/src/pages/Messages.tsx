@@ -40,6 +40,11 @@ type StaticIndexedMessage = {
   wordCounts: Record<string, number>;
 };
 
+type StaticMessageText = {
+  productId: number;
+  sections?: Array<{ text?: string }>;
+};
+
 function normalizeMessageSearch(value: string) {
   return value
     .normalize("NFD")
@@ -83,11 +88,32 @@ function countWordOccurrences(
   );
 }
 
+function extractStaticSnippet(message: StaticMessageText, query: string) {
+  const terms = normalizeMessageSearch(query).split(/\s+/).filter(Boolean);
+  const section = (message.sections ?? []).find(item => {
+    const text = normalizeMessageSearch(item.text ?? "");
+    return terms.some(term => text.includes(term));
+  });
+  const text = section?.text?.replace(/\s+/g, " ").trim() ?? "";
+  if (!text) return "";
+  if (text.length <= 320) return text;
+  const normalizedText = normalizeMessageSearch(text);
+  const matchIndex = terms
+    .map(term => normalizedText.indexOf(term))
+    .filter(index => index >= 0)
+    .sort((left, right) => left - right)[0] ?? 0;
+  const start = Math.max(0, matchIndex - 100);
+  const prefix = start > 0 ? "…" : "";
+  return `${prefix}${text.slice(start, start + 320).trim()}…`;
+}
+
 function StaticMessagesPage() {
   const [messages, setMessages] = useState<StaticIndexedMessage[]>([]);
   const [query, setQuery] = useState("");
   const [titleFilter, setTitleFilter] = useState("");
   const [activeTitleFilter, setActiveTitleFilter] = useState("");
+  const [snippetByProductId, setSnippetByProductId] = useState<Record<number, string>>({});
+  const [snippetLoading, setSnippetLoading] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [activeCategoryFilter, setActiveCategoryFilter] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
@@ -235,6 +261,44 @@ function StaticMessagesPage() {
     normalizedQuery,
     normalizedTitleFilter,
   ]);
+
+  useEffect(() => {
+    const searchText = activeTitleFilter.trim() || query.trim();
+    if (!searchText || loading || error || filteredMessages.length === 0) {
+      setSnippetByProductId({});
+      setSnippetLoading(false);
+      return;
+    }
+    let active = true;
+    setSnippetLoading(true);
+    const visibleMessages = filteredMessages.slice(0, 36);
+    Promise.all(
+      visibleMessages.map(async message => {
+        try {
+          const response = await fetch(
+            new URL(
+              `./data/messages-full/${message.productId}.json`,
+              window.location.href
+            ),
+            { cache: "force-cache" }
+          );
+          if (!response.ok) return [message.productId, ""] as const;
+          const payload = (await response.json()) as StaticMessageText;
+          return [message.productId, extractStaticSnippet(payload, searchText)] as const;
+        } catch {
+          return [message.productId, ""] as const;
+        }
+      })
+    ).then(entries => {
+      if (!active) return;
+      setSnippetByProductId(Object.fromEntries(entries));
+      setSnippetLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [activeTitleFilter, error, filteredMessages, loading, query]);
+
   const occurrenceTotal = useMemo(
     () =>
       filteredMessages.reduce(
@@ -400,8 +464,8 @@ function StaticMessagesPage() {
                     onKeyDown={event => {
                       if (event.key === "Enter") submitTitleSearch();
                     }}
-                    placeholder="Digite uma palavra…"
-                    aria-label="Pesquisar qualquer palavra nas 236 mensagens"
+                    placeholder="Buscar capítulo, tema ou trecho…"
+                    aria-label="Buscar capítulo, tema ou trecho nas mensagens do profeta"
                   />
                   {titleFilter && (
                     <button
@@ -493,6 +557,18 @@ function StaticMessagesPage() {
                             {message.bookTitle ? `${message.bookTitle} · ` : ""}
                             {message.dateCode}
                           </small>
+                          {snippetByProductId[message.productId] ? (
+                            <span className="message-catalog-item-snippet">
+                              {highlightSnippet(
+                                snippetByProductId[message.productId],
+                                activeTitleFilter || query
+                              )}
+                            </span>
+                          ) : snippetLoading && (activeTitleFilter || query) ? (
+                            <span className="message-catalog-item-snippet is-loading">
+                              Procurando o trecho…
+                            </span>
+                          ) : null}
                         </span>
                         <ArrowRight size={15} aria-hidden="true" />
                       </button>
