@@ -5,8 +5,8 @@ on:
     branches:
       - main
   schedule:
-    # 23:20 UTC = 20:20 no horário de Brasília (UTC-3).
-    - cron: "20 23 * * *"
+    # 11:30 UTC = 08:30 no horário de Brasília (UTC-3).
+    - cron: "30 11 * * *"
   workflow_dispatch:
 
 permissions:

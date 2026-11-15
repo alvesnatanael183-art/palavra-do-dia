@@ -18,7 +18,10 @@ import {
   type BibleBook,
 } from "@/lib/bible";
 import { isGithubPagesStatic, officialMessagesUrl } from "@/lib/deployment";
-import { getDailyIndex, getDailyProphetMessage } from "@/lib/dailyContent";
+import {
+  getDailyProphetMessage,
+  getDailyScheduleEntry,
+} from "@/lib/dailyContent";
 
 const quickReads = [
   { label: "Salmo 91", book: "PSA", chapter: 91 },
@@ -65,75 +68,6 @@ function findRelatedProphetParagraph(
   return related.length > 520 ? `${related.slice(0, 520).trim()}…` : related;
 }
 
-const dailyReadings = [
-  {
-    bookId: "HEB",
-    chapter: 11,
-    verse: 1,
-    reference: "HEBREUS 11:1",
-    fallback:
-      "Ora, a fé é a certeza daquilo que esperamos, a prova das coisas que não se veem.",
-    reflection:
-      "A fé bíblica firma a esperança no caráter de Deus e na sua Palavra, mesmo quando ainda não vemos o desfecho. Essa confiança é o tema central de A Fé É o Firme Fundamento: uma vida que aprende a caminhar sustentada pelo que Deus prometeu.",
-  },
-  {
-    bookId: "ROM",
-    chapter: 10,
-    verse: 17,
-    reference: "ROMANOS 10:17",
-    fallback: "Logo, a fé vem pelo ouvir, e o ouvir pela palavra de Deus.",
-    reflection:
-      "A fé se alimenta de ouvir a Palavra e deixá-la orientar as escolhas do cotidiano. A mensagem A Fé É o Firme Fundamento também aponta para essa confiança: não apenas conhecer as palavras, mas permitir que elas deem direção à vida.",
-  },
-  {
-    bookId: "MAT",
-    chapter: 21,
-    verse: 22,
-    reference: "MATEUS 21:22",
-    fallback: "E tudo o que pedirem em oração, crendo, vocês receberão.",
-    reflection:
-      "A oração cristã nasce da confiança em Deus e permanece orientada pela sua Palavra. Ao refletirmos sobre A Fé É o Firme Fundamento, lembramos que a esperança não é uma fórmula: é uma relação de confiança que conduz o coração a buscar a Deus.",
-  },
-  {
-    bookId: "JAS",
-    chapter: 1,
-    verse: 6,
-    reference: "TIAGO 1:6",
-    fallback: "Peça, porém, com fé, sem duvidar de nada.",
-    reflection:
-      "Quando a dúvida aparece, a Escritura convida a pedir sabedoria e a permanecer firmes em Deus. A mensagem A Fé É o Firme Fundamento trata dessa confiança como algo que sustenta a caminhada, inclusive nos dias em que as circunstâncias parecem instáveis.",
-  },
-  {
-    bookId: "PSA",
-    chapter: 37,
-    verse: 5,
-    reference: "SALMOS 37:5",
-    fallback:
-      "Entregue o seu caminho ao SENHOR; confie também nele, e ele o fará.",
-    reflection:
-      "Entregar o caminho ao Senhor é confiar nele também durante o processo. A fé não apaga as dificuldades, mas dá esperança para seguir com fidelidade. Essa é uma leitura possível em diálogo com A Fé É o Firme Fundamento e com o convite do salmo a confiar em Deus.",
-  },
-  {
-    bookId: "HEB",
-    chapter: 11,
-    verse: 6,
-    reference: "HEBREUS 11:6",
-    fallback:
-      "Sem fé é impossível agradar a Deus, pois aquele que se aproxima dele deve crer que ele existe e que recompensa os que o buscam.",
-    reflection:
-      "Buscar a Deus começa com confiança: crer que ele está presente e se aproximar dele com sinceridade. A mensagem A Fé É o Firme Fundamento retoma essa convicção e nos chama a fazer da fé uma postura diária, não apenas uma ideia.",
-  },
-  {
-    bookId: "2CO",
-    chapter: 5,
-    verse: 7,
-    reference: "2 CORÍNTIOS 5:7",
-    fallback: "Pois andamos por fé, não por vista.",
-    reflection:
-      "Nem sempre enxergamos o próximo passo, mas a fé nos ajuda a caminhar com esperança e responsabilidade. Em sintonia com A Fé É o Firme Fundamento, este texto lembra que confiar em Deus também significa continuar seguindo sua Palavra no presente.",
-  },
-];
-
 function sectionFor(order: number) {
   if (order <= 5) return "Pentateuco";
   if (order <= 17) return "Livros históricos";
@@ -157,8 +91,11 @@ export default function Home() {
   const [prophetQuery, setProphetQuery] = useState("");
   const [prophetSearchError, setProphetSearchError] = useState("");
   const [now, setNow] = useState(() => new Date());
-  const dailyReading =
-    dailyReadings[Math.abs(getDailyIndex(now)) % dailyReadings.length];
+  const scheduledReading = getDailyScheduleEntry(now);
+  const dailyReading = {
+    ...scheduledReading,
+    fallback: scheduledReading.text,
+  };
   const dailyProphet = getDailyProphetMessage(now);
   const [dailyVerseText, setDailyVerseText] = useState(dailyReading.fallback);
   const [dailyProphetExcerpt, setDailyProphetExcerpt] = useState("");
