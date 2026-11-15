@@ -3,8 +3,10 @@ import { Link, useLocation } from "wouter";
 import {
   ArrowRight,
   BookOpen,
+  Download,
   ExternalLink,
   LoaderCircle,
+  Printer,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -233,6 +235,15 @@ function StaticMessagesPage() {
     normalizedQuery,
     normalizedTitleFilter,
   ]);
+  const occurrenceTotal = useMemo(
+    () =>
+      filteredMessages.reduce(
+        (total, message) =>
+          total + countWordOccurrences(message.wordCounts, activeTitleFilter),
+        0
+      ),
+    [filteredMessages, activeTitleFilter]
+  );
 
   const selectedMessage = fullMessage;
   const selectedIndex = selectedMessage
@@ -261,6 +272,53 @@ function StaticMessagesPage() {
     setActiveTitleFilter(titleFilter.trim());
     setActiveCategoryFilter(categoryFilter.trim());
     setSelectedProductId(null);
+  }
+
+  function exportSearchText() {
+    const lines = [
+      "Palavra Viva — resultado da pesquisa de mensagens",
+      `Pesquisa: ${activeTitleFilter || "Todas as mensagens"}`,
+      `Livro/categoria: ${activeCategoryFilter || "Todos"}`,
+      `Mensagens encontradas: ${filteredMessages.length}`,
+      `Total de ocorrências: ${occurrenceTotal}`,
+      "",
+      ...filteredMessages.map((message, index) => {
+        const occurrences = countWordOccurrences(
+          message.wordCounts,
+          activeTitleFilter
+        );
+        return `${index + 1}. ${message.title} — ${occurrences} ocorrência(s) — ${message.bookTitle || "Sem categoria"} — ${message.dateCode}`;
+      }),
+    ];
+    const blob = new Blob([lines.join("\n")], {
+      type: "text/plain;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `pesquisa-${normalizeMessageSearch(activeTitleFilter) || "mensagens"}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportSearchPdf() {
+    const rows = filteredMessages
+      .map(message => {
+        const occurrences = countWordOccurrences(
+          message.wordCounts,
+          activeTitleFilter
+        );
+        return `<li><strong>${message.title}</strong> — ${occurrences} ocorrência(s) — ${message.bookTitle || "Sem categoria"} — ${message.dateCode}</li>`;
+      })
+      .join("");
+    const printWindow = window.open("", "_blank", "noopener,noreferrer");
+    if (!printWindow) return;
+    printWindow.document.write(
+      `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Pesquisa — Palavra Viva</title><style>body{font-family:Arial,sans-serif;color:#17202a;margin:32px;line-height:1.45}h1{font-size:22px}p{margin:6px 0}ol{padding-left:24px}li{margin:5px 0}@media print{body{margin:18mm}}</style></head><body><h1>Palavra Viva — resultado da pesquisa</h1><p><strong>Pesquisa:</strong> ${activeTitleFilter || "Todas as mensagens"}</p><p><strong>Livro/categoria:</strong> ${activeCategoryFilter || "Todos"}</p><p><strong>Mensagens encontradas:</strong> ${filteredMessages.length}</p><p><strong>Total de ocorrências:</strong> ${occurrenceTotal}</p><hr><ol>${rows}</ol></body></html>`
+    );
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
   }
 
   return (
@@ -403,34 +461,54 @@ function StaticMessagesPage() {
               </div>
             )}
             {!loading && !error && filteredMessages.length > 0 && (
-              <ul className="message-catalog-list">
-                {filteredMessages.map(message => (
-                  <li key={message.productId}>
-                    <button
-                      type="button"
-                      className={`message-catalog-item ${selectedProductId === message.productId ? "selected" : ""}`}
-                      onClick={() => setSelectedProductId(message.productId)}
-                      aria-pressed={selectedProductId === message.productId}
-                    >
-                      <span className="message-catalog-item-copy">
-                        <strong>{message.title}</strong>
-                        <small>
-                          {activeTitleFilter &&
-                          countWordOccurrences(
-                            message.wordCounts,
-                            activeTitleFilter
-                          ) > 0
-                            ? `${countWordOccurrences(message.wordCounts, activeTitleFilter)} ocorrência(s) · `
-                            : ""}
-                          {message.bookTitle ? `${message.bookTitle} · ` : ""}
-                          {message.dateCode}
-                        </small>
-                      </span>
-                      <ArrowRight size={15} aria-hidden="true" />
+              <>
+                <ul className="message-catalog-list">
+                  {filteredMessages.map(message => (
+                    <li key={message.productId}>
+                      <button
+                        type="button"
+                        className={`message-catalog-item ${selectedProductId === message.productId ? "selected" : ""}`}
+                        onClick={() => setSelectedProductId(message.productId)}
+                        aria-pressed={selectedProductId === message.productId}
+                      >
+                        <span className="message-catalog-item-copy">
+                          <strong>{message.title}</strong>
+                          <small>
+                            {activeTitleFilter &&
+                            countWordOccurrences(
+                              message.wordCounts,
+                              activeTitleFilter
+                            ) > 0
+                              ? `${countWordOccurrences(message.wordCounts, activeTitleFilter)} ocorrência(s) · `
+                              : ""}
+                            {message.bookTitle ? `${message.bookTitle} · ` : ""}
+                            {message.dateCode}
+                          </small>
+                        </span>
+                        <ArrowRight size={15} aria-hidden="true" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <div className="message-results-footer">
+                  <strong>
+                    Total de ocorrências:{" "}
+                    {occurrenceTotal.toLocaleString("pt-BR")}
+                  </strong>
+                  <span>
+                    {filteredMessages.length.toLocaleString("pt-BR")}{" "}
+                    mensagem(ns) encontrada(s)
+                  </span>
+                  <div className="message-export-actions">
+                    <button type="button" onClick={exportSearchText}>
+                      <Download size={14} /> Exportar TXT
                     </button>
-                  </li>
-                ))}
-              </ul>
+                    <button type="button" onClick={exportSearchPdf}>
+                      <Printer size={14} /> Exportar PDF
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
           </aside>
           <FullMessageReader
