@@ -86,7 +86,8 @@ function StaticMessagesPage() {
   const [query, setQuery] = useState("");
   const [titleFilter, setTitleFilter] = useState("");
   const [activeTitleFilter, setActiveTitleFilter] = useState("");
-  const [codeFilter, setCodeFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     null
   );
@@ -182,7 +183,14 @@ function StaticMessagesPage() {
 
   const normalizedQuery = normalizeMessageSearch(query);
   const normalizedTitleFilter = normalizeMessageSearch(activeTitleFilter);
-  const normalizedCodeFilter = codeFilter.trim().toLocaleLowerCase("pt-BR");
+  const normalizedCategoryFilter = normalizeMessageSearch(activeCategoryFilter);
+  const categories = useMemo(
+    () =>
+      [
+        ...new Set(messages.map(message => message.bookTitle).filter(Boolean)),
+      ].sort((left, right) => left.localeCompare(right, "pt-BR")),
+    [messages]
+  );
   const filteredMessages = useMemo(() => {
     const titleWords = normalizedTitleFilter.split(/\s+/).filter(Boolean);
     return messages
@@ -206,12 +214,12 @@ function StaticMessagesPage() {
               countWordOccurrences(message.wordCounts, word) > 0 ||
               searchableText.includes(word)
           );
-        const codeMatch =
-          !normalizedCodeFilter ||
-          message.dateCode
-            .toLocaleLowerCase("pt-BR")
-            .includes(normalizedCodeFilter);
-        return generalMatch && titleMatch && codeMatch;
+        const categoryMatch =
+          !normalizedCategoryFilter ||
+          normalizeMessageSearch(message.bookTitle).includes(
+            normalizedCategoryFilter
+          );
+        return generalMatch && titleMatch && categoryMatch;
       })
       .sort(
         (left, right) =>
@@ -219,7 +227,12 @@ function StaticMessagesPage() {
           left.message.title.localeCompare(right.message.title, "pt-BR")
       )
       .map(({ message }) => message);
-  }, [messages, normalizedCodeFilter, normalizedQuery, normalizedTitleFilter]);
+  }, [
+    messages,
+    normalizedCategoryFilter,
+    normalizedQuery,
+    normalizedTitleFilter,
+  ]);
 
   const selectedMessage = fullMessage;
   const selectedIndex = selectedMessage
@@ -246,6 +259,7 @@ function StaticMessagesPage() {
 
   function submitTitleSearch() {
     setActiveTitleFilter(titleFilter.trim());
+    setActiveCategoryFilter(categoryFilter.trim());
     setSelectedProductId(null);
   }
 
@@ -316,8 +330,11 @@ function StaticMessagesPage() {
                     maxLength={120}
                     value={titleFilter}
                     onChange={event => setTitleFilter(event.target.value)}
-                    placeholder="Título ou palavras…"
-                    aria-label="Filtrar por título e todas as palavras do conteúdo"
+                    onKeyDown={event => {
+                      if (event.key === "Enter") submitTitleSearch();
+                    }}
+                    placeholder="Digite uma palavra…"
+                    aria-label="Pesquisar qualquer palavra nas 236 mensagens"
                   />
                   {titleFilter && (
                     <button
@@ -338,24 +355,19 @@ function StaticMessagesPage() {
                 </button>
               </div>
               <label className="message-catalog-search">
-                <span className="sr-only">Filtrar por código</span>
-                <input
-                  type="search"
-                  maxLength={40}
-                  value={codeFilter}
-                  onChange={event => setCodeFilter(event.target.value)}
-                  placeholder="Código…"
-                  aria-label="Filtrar mensagens por código"
-                />
-                {codeFilter && (
-                  <button
-                    type="button"
-                    onClick={() => setCodeFilter("")}
-                    aria-label="Limpar filtro de código"
-                  >
-                    ×
-                  </button>
-                )}
+                <span className="sr-only">Filtrar por livro ou categoria</span>
+                <select
+                  value={categoryFilter}
+                  onChange={event => setCategoryFilter(event.target.value)}
+                  aria-label="Filtrar mensagens por livro ou categoria"
+                >
+                  <option value="">Todos os livros/categorias</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
             <div className="message-discovery-row static-message-suggestions">
