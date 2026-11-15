@@ -274,6 +274,15 @@ function StaticMessagesPage() {
     setSelectedProductId(null);
   }
 
+  function clearAllSearches() {
+    setQuery("");
+    setTitleFilter("");
+    setActiveTitleFilter("");
+    setCategoryFilter("");
+    setActiveCategoryFilter("");
+    setSelectedProductId(null);
+  }
+
   function exportSearchText() {
     const lines = [
       "Palavra Viva — resultado da pesquisa de mensagens",
@@ -372,8 +381,8 @@ function StaticMessagesPage() {
               {query && (
                 <button
                   type="button"
-                  onClick={() => setQuery("")}
-                  aria-label="Limpar busca direta"
+                  onClick={clearAllSearches}
+                  aria-label="Limpar todas as pesquisas"
                 >
                   ×
                 </button>
@@ -397,8 +406,8 @@ function StaticMessagesPage() {
                   {titleFilter && (
                     <button
                       type="button"
-                      onClick={() => setTitleFilter("")}
-                      aria-label="Limpar filtro de título"
+                      onClick={clearAllSearches}
+                      aria-label="Limpar todas as pesquisas"
                     >
                       ×
                     </button>
