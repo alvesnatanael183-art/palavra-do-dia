@@ -3079,3 +3079,106 @@ button {
     font-size: 8px;
   }
 }
+
+/* Oferta — botão e QR Code adicionados sem alterar os demais componentes */
+.offer-button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--blue);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--blue-deep);
+  background: var(--blue-pale);
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+.offer-button:hover {
+  border-color: var(--blue-deep);
+  background: var(--sky);
+  transform: translateY(-1px);
+}
+.offer-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 45, 64, 0.48);
+}
+.offer-dialog {
+  width: min(390px, 100%);
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: 0 22px 70px rgba(10, 64, 91, 0.24);
+  text-align: center;
+}
+.offer-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  text-align: left;
+}
+.offer-dialog-header h2 {
+  margin: 8px 0 0;
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+.offer-dialog-close {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--muted);
+  background: var(--paper);
+  cursor: pointer;
+}
+.offer-dialog-close:hover {
+  color: var(--blue-deep);
+  background: var(--blue-pale);
+}
+.offer-dialog-text {
+  margin: 17px 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.offer-qr {
+  display: block;
+  width: min(322px, 100%);
+  height: auto;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+@media (max-width: 600px) {
+  .offer-button {
+    min-height: 31px;
+    padding: 0 8px;
+    font-size: 9px;
+  }
+  .offer-button svg {
+    width: 14px;
+  }
+  .offer-dialog {
+    padding: 19px;
+  }
+  .offer-dialog-header h2 {
+    font-size: 21px;
+  }
+}

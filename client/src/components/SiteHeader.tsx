@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { BookOpen, Menu, Moon, Search, Sun, X } from "lucide-react";
+import { BookOpen, Gift, Menu, Moon, Search, Sun, X } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { isGithubPagesStatic } from "@/lib/deployment";
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [offerOpen, setOfferOpen] = useState(false);
   const [location, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const dark = theme === "dark";
   const closeMenu = () => setMenuOpen(false);
+  const closeOffer = () => setOfferOpen(false);
 
   function navigateToHomeSection(section: string) {
     closeMenu();
@@ -47,6 +49,15 @@ export default function SiteHeader() {
           <Link href="/mensagens" onClick={closeMenu}>Mensagens</Link>
         </nav>
         <div className="header-actions">
+          <button
+            className="offer-button"
+            type="button"
+            onClick={() => setOfferOpen(true)}
+            aria-label="Abrir oferta"
+          >
+            <Gift size={16} />
+            <span>Oferta</span>
+          </button>
           <Link href="/busca" className="icon-button search-shortcut" aria-label="Pesquisar na Bíblia"><Search size={19} /></Link>
           <button className="icon-button theme-toggle" type="button" onClick={() => toggleTheme?.()} aria-label={dark ? "Ativar tema claro" : "Ativar tema escuro"}>
             {dark ? <Sun size={18} /> : <Moon size={18} />}
@@ -56,6 +67,29 @@ export default function SiteHeader() {
           </button>
         </div>
       </div>
+      {offerOpen && (
+        <div className="offer-dialog-backdrop" role="presentation" onClick={closeOffer}>
+          <div
+            className="offer-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="offer-dialog-title"
+            onClick={event => event.stopPropagation()}
+          >
+            <div className="offer-dialog-header">
+              <div>
+                <span className="section-kicker">Oferta</span>
+                <h2 id="offer-dialog-title">Oferte o que sentir no coração</h2>
+              </div>
+              <button className="offer-dialog-close" type="button" onClick={closeOffer} aria-label="Fechar oferta">
+                <X size={19} />
+              </button>
+            </div>
+            <p className="offer-dialog-text">Aponte a câmera do celular para o QR Code para realizar sua oferta.</p>
+            <img className="offer-qr" src={`${import.meta.env.BASE_URL}oferta-qr.jpeg`} alt="QR Code para oferta" />
+          </div>
+        </div>
+      )}
     </header>
   );
 }
