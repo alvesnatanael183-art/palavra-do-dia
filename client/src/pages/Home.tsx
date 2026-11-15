@@ -27,6 +27,44 @@ const quickReads = [
   { label: "Romanos 8", book: "ROM", chapter: 8 },
 ];
 
+const relationshipStopWords = new Set(
+  "a ao aos as de da das do dos e em na nas no nos o os para por que um uma é ser se com como não mais seu sua seus suas aquele aquela ele ela eles elas isso isto este esta pelo pela sobre quem quando onde ou foi são tem".split(
+    " "
+  )
+);
+
+function findRelatedProphetParagraph(
+  sections: { text?: string }[] | undefined,
+  verseText: string
+) {
+  const normalizeWords = (text: string) =>
+    text
+      .toLocaleLowerCase("pt-BR")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .match(/[a-z]{4,}/g)
+      ?.filter(word => !relationshipStopWords.has(word)) ?? [];
+  const verseWords = new Set(normalizeWords(verseText));
+  const candidates = (sections ?? [])
+    .map(section => section.text?.trim() ?? "")
+    .filter(Boolean);
+  if (!candidates.length) return "";
+
+  const ranked = candidates.map((text, index) => ({
+    text,
+    score: normalizeWords(text).reduce(
+      (total, word) => total + (verseWords.has(word) ? 1 : 0),
+      0
+    ),
+    index,
+  }));
+  ranked.sort(
+    (left, right) => right.score - left.score || left.index - right.index
+  );
+  const related = ranked[0].text;
+  return related.length > 520 ? `${related.slice(0, 520).trim()}…` : related;
+}
+
 const dailyReadings = [
   {
     bookId: "HEB",
@@ -165,14 +203,10 @@ export default function Home() {
         return response.json() as Promise<{ sections?: { text?: string }[] }>;
       })
       .then(message => {
-        const rawExcerpt =
-          message.sections
-            ?.find(section => section.text?.trim())
-            ?.text?.trim() ?? "";
-        const excerpt =
-          rawExcerpt.length > 520
-            ? `${rawExcerpt.slice(0, 520).trim()}…`
-            : rawExcerpt;
+        const excerpt = findRelatedProphetParagraph(
+          message.sections,
+          dailyVerseText
+        );
         if (active) setDailyProphetExcerpt(excerpt);
       })
       .catch(() => {
@@ -184,7 +218,7 @@ export default function Home() {
     return () => {
       active = false;
     };
-  }, [dailyProphet.productId]);
+  }, [dailyProphet.productId, dailyVerseText]);
 
   const visibleBooks = useMemo(() => {
     const needle = filter.trim().toLocaleLowerCase("pt-BR");
@@ -340,13 +374,17 @@ export default function Home() {
           </article>
           <article className="daily-prophet-card">
             <div className="reflection-label">
-              <span>TRECHO DA MENSAGEM DO PROFETA</span>
+              <span>TRECHO RELACIONADO AO VERSÍCULO · MENSAGEM DO PROFETA</span>
               <span>·</span>
               <span>
                 {dailyProphet.title} · {dailyProphet.dateCode}
               </span>
             </div>
             <p>{dailyProphetExcerpt || "Carregando a mensagem do dia…"}</p>
+            <ShareCopyActions
+              text={dailyProphetExcerpt}
+              label="o trecho relacionado da mensagem do profeta"
+            />
             <div className="reflection-footer">
               <span>Parágrafo da mensagem de William Marrion Branham.</span>
               {isGithubPagesStatic ? (
