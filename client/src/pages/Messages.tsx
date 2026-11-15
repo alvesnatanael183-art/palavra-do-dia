@@ -467,7 +467,7 @@ function StaticMessagesPage() {
                     <li key={message.productId}>
                       <button
                         type="button"
-                        className={`message-catalog-item ${selectedProductId === message.productId ? "selected" : ""}`}
+                        className={`message-catalog-item ${selectedProductId === message.productId ? "selected" : ""} ${activeTitleFilter && countWordOccurrences(message.wordCounts, activeTitleFilter) > 0 ? "has-search-match" : ""}`}
                         onClick={() => setSelectedProductId(message.productId)}
                         aria-pressed={selectedProductId === message.productId}
                       >
@@ -523,6 +523,7 @@ function StaticMessagesPage() {
             onFontSizeChange={setReaderFontSize}
             onNavigate={navigateMessage}
             onRetry={loadIndex}
+            highlightQuery={activeTitleFilter}
           />
         </section>
       </main>
