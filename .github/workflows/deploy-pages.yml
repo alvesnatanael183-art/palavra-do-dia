@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - main
+  schedule:
+    # 08:00 UTC = 05:00 no horário de Brasília (UTC-3).
+    - cron: "0 8 * * *"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: github-pages-gh-pages
@@ -45,14 +48,9 @@ jobs:
 
       - name: Publish dist/public to gh-pages
         env:
-          GH_PAGES_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-
-          if [ -z "${GH_PAGES_TOKEN:-}" ]; then
-            echo "::error title=Missing secret::Add GH_PAGES_TOKEN under Settings > Secrets and variables > Actions. Use a fine-grained token limited to this repository with Contents: read and write."
-            exit 1
-          fi
 
           git fetch --no-tags origin '+refs/heads/gh-pages:refs/remotes/origin/gh-pages'
           deploy_dir="$RUNNER_TEMP/gh-pages"
@@ -80,15 +78,4 @@ jobs:
 
           git -C "$deploy_dir" commit -m "Deploy GitHub Pages from ${GITHUB_SHA}"
 
-          cat > "$RUNNER_TEMP/git-credential-helper" <<'EOF'
-          #!/bin/sh
-          if [ "$1" = "get" ]; then
-            printf 'username=x-access-token\n'
-            printf 'password=%s\n' "$GH_PAGES_TOKEN"
-            printf '\n'
-          fi
-          EOF
-          chmod 700 "$RUNNER_TEMP/git-credential-helper"
-          git config --global credential.helper "$RUNNER_TEMP/git-credential-helper"
-
-          git -C "$deploy_dir" push origin HEAD:gh-pages
+          git -C "$deploy_dir" -c "http.extraHeader=AUTHORIZATION: bearer $GITHUB_TOKEN" push origin HEAD:gh-pages
