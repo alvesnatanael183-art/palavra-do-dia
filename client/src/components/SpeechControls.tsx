@@ -20,6 +20,14 @@ export default function SpeechControls({ text, label, disabled = false }: Speech
     () => voices.filter(voice => voice.lang.toLocaleLowerCase().startsWith("pt")),
     [voices]
   );
+  const otherVoices = useMemo(
+    () => voices.filter(voice => !voice.lang.toLocaleLowerCase().startsWith("pt")),
+    [voices]
+  );
+  const orderedVoices = useMemo(
+    () => [...portugueseVoices, ...otherVoices],
+    [otherVoices, portugueseVoices]
+  );
 
   useEffect(() => {
     if (!("speechSynthesis" in window)) return;
@@ -97,9 +105,9 @@ export default function SpeechControls({ text, label, disabled = false }: Speech
         <button type="button" onClick={pause} disabled={status !== "playing"} aria-label={`Pausar ${label}`} title="Pausar"><Pause size={14} /> Pausar</button>
         <button type="button" onClick={stop} disabled={status === "idle"} aria-label={`Parar ${label}`} title="Parar"><Square size={13} /> Parar</button>
       </div>
-      <label className="speech-voice-select">Voz
+      <label className="speech-voice-select">Voz disponível
         <select value={voiceName} onChange={event => setVoiceName(event.target.value)} disabled={!voices.length} aria-label={`Selecionar voz para ${label}`}>
-          {portugueseVoices.length ? portugueseVoices.map(voice => <option key={`${voice.name}-${voice.lang}`} value={voice.name}>{voice.name} ({voice.lang})</option>) : <option value="">Voz padrão do navegador</option>}
+          {orderedVoices.length ? orderedVoices.map(voice => <option key={`${voice.name}-${voice.lang}`} value={voice.name}>{voice.name} ({voice.lang}){voice.lang.toLocaleLowerCase().startsWith("pt") ? " · português" : ""}</option>) : <option value="">Voz padrão do navegador</option>}
         </select>
       </label>
     </div>
