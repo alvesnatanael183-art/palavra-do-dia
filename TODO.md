@@ -96,8 +96,16 @@
 
 ## Automação de build e deploy do GitHub Pages — em andamento
 - O usuário pediu: “Como automatizar o build e o deploy usando o GitHub Actions para esta branch gh-pages”.
-- Ao receber push na branch `main`, compilar a versão estática com `pnpm build:github-pages` e publicar os arquivos públicos necessários de `dist/public` na raiz da branch `gh-pages`; omitir `__manus__/`, `manus-routes.json` e `.gitkeep`; oferecer também execução manual por `workflow_dispatch`.
+- Ao receber push na branch `main`, compilar a versão estática com `pnpm build:github-pages` e publicar os arquivos públicos necessários de `dist/public` na raiz da branch `gh-pages`; omitir `__manus__/`, `manus-routes.json` e `.gitkeep`; oferecer também execução manual por `workflow_dispatch` e manter o gatilho diário às 08:30 no horário de Brasília existente no workflow.
 - Manter GitHub Pages configurado para `gh-pages` / raiz e limitar os gatilhos do workflow a `main` para que os commits de saída em `gh-pages` não iniciem builds recursivos.
 - Usar base de asset relativa `./` no build estático para funcionar no endereço de projeto `/palavra-do-dia/` e na raiz de domínio personalizado; preservar `.nojekyll` e um `CNAME` já existente.
 - Não usar `GITHUB_TOKEN` para atualizar `gh-pages`, pois um push com essa credencial não dispara o build Pages baseado em branch. Usar apenas o segredo `GH_PAGES_TOKEN`, sem copiar o valor para arquivos ou logs; o proprietário o cadastrará em **Settings → Secrets and variables → Actions** como token de acesso fino restrito a este repositório, com permissão `Contents: Read and write`.
 - A primeira publicação automática só poderá concluir depois que o segredo estiver cadastrado; então o workflow deverá ser executado novamente. O GitHub já fornece o endereço `github.io`; um domínio personalizado exige registro e configuração DNS fora do GitHub.
+
+
+## Voz personalizada no leitor — em andamento
+- Acrescentar a voz ElevenLabs de ID `CstacWqMhJQlnfLPxRG4` à lista “Voz disponível”, mantendo as vozes atuais do navegador.
+- Ao escolher essa voz e pressionar Play nos controles do versículo, reflexão e trecho relacionado da mensagem, gerar e reproduzir o texto solicitado; permitir pausar, continuar e parar.
+- Guardar a chave privada somente como variável protegida do servidor. Nunca enviar a chave ao navegador, incluir no bundle, commit ou logs.
+- Fazer a compilação estática do GitHub Pages solicitar o áudio ao backend HTTPS do Manus com CORS limitado aos domínios do Palavra Viva; manter a reprodução das vozes do navegador independente do backend.
+- Restringir o endpoint ao voice ID selecionado; limitar o texto a 1.200 caracteres, o áudio a 8 MiB, o site a 30 solicitações por minuto e a 100 solicitações e 10.000 caracteres por dia. A geração é iniciada somente por ação do leitor, consome créditos/cota da conta ElevenLabs e o orçamento diário compartilhado reinicia à meia-noite UTC ou quando o servidor reinicia.

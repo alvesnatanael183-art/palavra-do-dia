@@ -608,7 +608,6 @@ function StaticMessagesPage() {
             onFontSizeChange={setReaderFontSize}
             onNavigate={navigateMessage}
             onRetry={loadIndex}
-            highlightQuery={activeTitleFilter}
           />
         </section>
       </main>

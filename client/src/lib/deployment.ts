@@ -3,6 +3,12 @@ export const isGithubPagesStatic =
 
 export const officialMessagesUrl = "https://table.branham.org/#/pt/main";
 
+const manusSpeechEndpoint =
+  "https://palavradia-vw5zjnfk.manus.space/api/tts/speech";
+export const speechGenerationUrl = isGithubPagesStatic
+  ? manusSpeechEndpoint
+  : "/api/tts/speech";
+
 export const githubPagesHrefs = (href: string) => {
   const [routePath, query] = href.replace(/^#?\/?/, "").split("?");
   const url = new URL(window.location.href);

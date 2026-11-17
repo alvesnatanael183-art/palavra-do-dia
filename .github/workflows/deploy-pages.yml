@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: github-pages-gh-pages
@@ -48,9 +48,14 @@ jobs:
 
       - name: Publish dist/public to gh-pages
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GH_PAGES_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
         run: |
           set -euo pipefail
+
+          if [ -z "${GH_PAGES_TOKEN:-}" ]; then
+            echo "::error::GH_PAGES_TOKEN is required to publish the gh-pages branch."
+            exit 1
+          fi
 
           git fetch --no-tags origin '+refs/heads/gh-pages:refs/remotes/origin/gh-pages'
           deploy_dir="$RUNNER_TEMP/gh-pages"
@@ -78,5 +83,5 @@ jobs:
 
           git -C "$deploy_dir" commit -m "Deploy GitHub Pages from ${GITHUB_SHA}"
 
-          git -C "$deploy_dir" remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git -C "$deploy_dir" remote set-url origin "https://x-access-token:${GH_PAGES_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git -C "$deploy_dir" push origin HEAD:gh-pages

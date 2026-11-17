@@ -3482,6 +3482,13 @@ button {
   padding: 0 7px;
   font-weight: 500;
 }
+.speech-voice-note,
+.speech-error {
+  flex-basis: 100%;
+  font-size: 9px;
+}
+.speech-voice-note { color: var(--soft-muted); }
+.speech-error { color: #a33d3d; }
 @media (max-width: 600px) {
   .speech-controls {
     align-items: flex-start;
