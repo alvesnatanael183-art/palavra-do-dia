@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import ShareCopyActions from "@/components/ShareCopyActions";
+import DailyPlanner from "@/components/DailyPlanner";
 import {
   bookHref,
   getBooks,
@@ -90,13 +91,13 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [prophetQuery, setProphetQuery] = useState("");
   const [prophetSearchError, setProphetSearchError] = useState("");
-  const [now, setNow] = useState(() => new Date());
-  const scheduledReading = getDailyScheduleEntry(now);
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const scheduledReading = getDailyScheduleEntry(selectedDate);
   const dailyReading = {
     ...scheduledReading,
     fallback: scheduledReading.text,
   };
-  const dailyProphet = getDailyProphetMessage(now);
+  const dailyProphet = getDailyProphetMessage(selectedDate);
   const [dailyVerseText, setDailyVerseText] = useState(dailyReading.fallback);
   const [dailyProphetExcerpt, setDailyProphetExcerpt] = useState("");
 
@@ -123,11 +124,6 @@ export default function Home() {
       active = false;
     };
   }, [dailyReading.bookId, dailyReading.chapter, dailyReading.verse]);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 60_000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -239,15 +235,27 @@ export default function Home() {
             <span className="section-kicker">
               <Sparkles size={14} /> PARA HOJE
             </span>
-            <Link
-              href={bookHref(
-                dailyReading.bookId,
-                dailyReading.chapter,
-                dailyReading.verse
-              )}
-            >
-              Ler capítulo <ArrowRight size={15} />
-            </Link>
+            <div className="daily-section-actions">
+              <Link
+                href={bookHref(
+                  dailyReading.bookId,
+                  dailyReading.chapter,
+                  dailyReading.verse
+                )}
+              >
+                Ler capítulo <ArrowRight size={15} />
+              </Link>
+              <DailyPlanner
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                verseReference={dailyReading.reference}
+                verseText={dailyVerseText}
+                reflection={dailyReading.reflection}
+                prophetCode={dailyProphet.dateCode}
+                prophetTitle={dailyProphet.title}
+                prophetExcerpt={dailyProphetExcerpt}
+              />
+            </div>
           </div>
           <div className="daily-card">
             <div className="daily-mark" aria-hidden="true">
@@ -273,7 +281,7 @@ export default function Home() {
             </div>
             <div className="daily-aside">
               <span className="daily-date">
-                {now.toLocaleDateString("pt-BR", {
+                {selectedDate.toLocaleDateString("pt-BR", {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
