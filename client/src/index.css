@@ -3416,3 +3416,78 @@ button {
     border-radius: 18px 18px 0 0;
   }
 }
+
+
+/* Leitura em voz alta no navegador */
+.speech-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+}
+.speech-controls-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 2px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+.speech-controls-buttons {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.speech-controls button,
+.speech-voice-select select {
+  min-height: 29px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--blue-deep);
+  background: var(--paper);
+  font-size: 10px;
+  font-weight: 700;
+}
+.speech-controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, opacity 0.18s;
+}
+.speech-controls button:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+}
+.speech-controls button:disabled,
+.speech-voice-select select:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.speech-voice-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--soft-muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+.speech-voice-select select {
+  max-width: 180px;
+  padding: 0 7px;
+  font-weight: 500;
+}
+@media (max-width: 600px) {
+  .speech-controls {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .speech-voice-select select {
+    max-width: 100%;
+  }
+}

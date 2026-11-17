@@ -11,6 +11,7 @@ import {
 import SiteHeader from "@/components/SiteHeader";
 import ShareCopyActions from "@/components/ShareCopyActions";
 import DailyPlanner from "@/components/DailyPlanner";
+import SpeechControls from "@/components/SpeechControls";
 import {
   bookHref,
   getBooks,
@@ -278,6 +279,10 @@ export default function Home() {
                 text={dailyVerseText}
                 label="o versículo de hoje"
               />
+              <SpeechControls
+                text={`${dailyReading.reference}. ${dailyVerseText}`}
+                label="o versículo de hoje"
+              />
             </div>
             <div className="daily-aside">
               <span className="daily-date">
@@ -313,6 +318,10 @@ export default function Home() {
               text={dailyReading.reflection}
               label="a reflexão do dia"
             />
+            <SpeechControls
+              text={dailyReading.reflection}
+              label="a reflexão do dia"
+            />
             <div className="reflection-footer">
               <span>Texto editorial original; não é transcrição literal.</span>
             </div>
@@ -329,6 +338,11 @@ export default function Home() {
             <ShareCopyActions
               text={dailyProphetExcerpt}
               label="o trecho relacionado da mensagem do profeta"
+            />
+            <SpeechControls
+              text={dailyProphetExcerpt}
+              label="o trecho relacionado da mensagem do profeta"
+              disabled={!dailyProphetExcerpt}
             />
             <div className="reflection-footer">
               <span>Parágrafo da mensagem de William Marrion Branham.</span>
