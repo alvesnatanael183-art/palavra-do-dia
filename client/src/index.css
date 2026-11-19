@@ -2264,15 +2264,15 @@ button {
 }
 .message-result-snippet mark,
 .message-excerpt mark {
-  color: #596168;
-  background: #e4e6e8;
+  color: #705f9f;
+  background: #f0ebff;
   border-radius: 2px;
   padding: 0 1px;
 }
 .dark .message-result-snippet mark,
 .dark .message-excerpt mark {
-  color: #f0f1f2;
-  background: #596168;
+  color: #d2c5f5;
+  background: #40365c;
 }
 .message-load-more {
   border: 1px solid var(--border);
@@ -3205,8 +3205,8 @@ button {
   -webkit-line-clamp: 3;
 }
 .message-catalog-item-snippet mark {
-  color: #596168;
-  background: #e4e6e8;
+  color: #705f9f;
+  background: #f0ebff;
   border-radius: 2px;
   padding: 0 1px;
 }
