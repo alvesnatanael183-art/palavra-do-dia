@@ -1076,12 +1076,16 @@ button {
 .verse-line > span {
   white-space: pre-line;
 }
-.bible-search-highlight {
+.search-term-highlight {
   padding: 0 2px;
   border-radius: 3px;
   color: var(--blue-deep);
   background: var(--blue-pale);
   font-weight: 700;
+}
+.full-message-panel.is-night .search-term-highlight {
+  color: #a9d6ff;
+  background: #254b67;
 }
 .verse-number {
   display: inline-block;

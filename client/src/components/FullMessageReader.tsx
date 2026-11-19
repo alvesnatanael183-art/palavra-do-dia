@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   BookOpen,
   ChevronLeft,
@@ -8,6 +9,7 @@ import {
   Sun,
 } from "lucide-react";
 import type { ProphetFullMessage } from "@/lib/prophetMessages";
+import { highlightText } from "@/components/SearchHighlight";
 
 const officialUrl = "https://table.branham.org/#/pt/main";
 const MIN_FONT_SIZE = 14;
@@ -19,6 +21,7 @@ type FullMessageReaderProps = {
   totalMessages: number;
   loading: boolean;
   error: string;
+  highlightQuery: string;
   nightMode: boolean;
   fontSize: number;
   onToggleNightMode: () => void;
@@ -33,6 +36,7 @@ export default function FullMessageReader({
   totalMessages,
   loading,
   error,
+  highlightQuery,
   nightMode,
   fontSize,
   onToggleNightMode,
@@ -40,6 +44,16 @@ export default function FullMessageReader({
   onNavigate,
   onRetry,
 }: FullMessageReaderProps) {
+  useEffect(() => {
+    if (!message || !highlightQuery.trim()) return;
+    const timer = window.setTimeout(() => {
+      document
+        .querySelector<HTMLElement>(".full-message-panel .search-term-highlight")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [message, highlightQuery]);
+
   return (
     <article
       className={`message-reading-panel full-message-panel${nightMode ? " is-night" : ""}`}
@@ -167,7 +181,7 @@ export default function FullMessageReader({
                   </span>
                 )}
                 <span className="full-message-paragraph-text">
-                  {section.text}
+                  {highlightText(section.text, highlightQuery)}
                 </span>
               </div>
             ))}

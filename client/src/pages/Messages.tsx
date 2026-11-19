@@ -13,6 +13,7 @@ import {
 import SiteHeader from "@/components/SiteHeader";
 import FullMessageReader from "@/components/FullMessageReader";
 import MessageCatalog from "@/components/MessageCatalog";
+import { highlightText } from "@/components/SearchHighlight";
 import { isGithubPagesStatic } from "@/lib/deployment";
 import {
   getProphetMessageCatalog,
@@ -602,6 +603,7 @@ function StaticMessagesPage() {
             totalMessages={filteredMessages.length}
             loading={loading || fullLoading}
             error={error || fullError}
+            highlightQuery={activeTitleFilter.trim() || query.trim()}
             nightMode={readerNightMode}
             fontSize={readerFontSize}
             onToggleNightMode={() => setReaderNightMode(value => !value)}
@@ -653,19 +655,7 @@ function readHistory(): string[] {
 }
 
 function highlightSnippet(text: string, query: string) {
-  const terms = [...new Set(query.trim().split(/\s+/).filter(Boolean))].sort(
-    (a, b) => b.length - a.length
-  );
-  if (!terms.length) return text;
-  const escaped = terms.map(term =>
-    term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  );
-  const matcher = new RegExp(`(${escaped.join("|")})`, "giu");
-  return text
-    .split(matcher)
-    .map((part, index) =>
-      index % 2 === 1 ? <mark key={`${index}-${part}`}>{part}</mark> : part
-    );
+  return highlightText(text, query);
 }
 
 function rememberSearch(value: string, current: string[]) {
@@ -1064,7 +1054,7 @@ function IntegratedMessages() {
                 <div>
                   <span className="section-kicker">RESULTADOS</span>
                   <h2>
-                    {activeQuery ? `“${activeQuery}”` : "Trechos encontrados"}
+                    {activeQuery ? <>“{highlightText(activeQuery, activeQuery)}”</> : "Trechos encontrados"}
                   </h2>
                 </div>
                 {activeQuery && !loading && (
@@ -1171,6 +1161,7 @@ function IntegratedMessages() {
               totalMessages={catalog.length}
               loading={fullLoading}
               error={fullError}
+              highlightQuery={activeQuery}
               nightMode={readerNightMode}
               fontSize={readerFontSize}
               onToggleNightMode={() => setReaderNightMode(current => !current)}

@@ -35,28 +35,43 @@ export function highlightText(text: string, query: string): ReactNode {
   const target = normalizeWithIndexes(cleanQuery).text.trim();
   if (!target) return text;
 
-  const matches: Array<[number, number]> = [];
-  let cursor = 0;
-  while (cursor <= source.text.length - target.length) {
-    const start = source.text.indexOf(target, cursor);
-    if (start < 0) break;
-    matches.push([start, start + target.length]);
-    cursor = start + target.length;
+  function findMatches(item: string) {
+    const found: Array<[number, number]> = [];
+    let cursor = 0;
+    while (cursor <= source.text.length - item.length) {
+      const start = source.text.indexOf(item, cursor);
+      if (start < 0) break;
+      found.push([start, start + item.length]);
+      cursor = start + item.length;
+    }
+    return found;
   }
-  if (!matches.length) return text;
+
+  const phraseMatches = findMatches(target);
+  const matches = phraseMatches.length
+    ? phraseMatches
+    : [...new Set(target.split(" ").filter(Boolean))]
+        .sort((left, right) => right.length - left.length)
+        .flatMap(findMatches);
+  matches.sort((left, right) => left[0] - right[0] || right[1] - left[1]);
+  const nonOverlappingMatches = matches.filter(
+    ([start, end], index) =>
+      index === 0 || start >= matches[index - 1][1] || end <= matches[index - 1][0],
+  );
+  if (!nonOverlappingMatches.length) return text;
 
   const sourceChars = Array.from(text);
   const parts: ReactNode[] = [];
   let sourceCursor = 0;
 
-  matches.forEach(([start, end], matchIndex) => {
+  nonOverlappingMatches.forEach(([start, end], matchIndex) => {
     const startIndex = source.sourceIndexes[start];
     const endIndex = source.sourceIndexes[end - 1] + 1;
     if (startIndex > sourceCursor) {
       parts.push(sourceChars.slice(sourceCursor, startIndex).join(""));
     }
     parts.push(
-      <mark className="bible-search-highlight" key={`${startIndex}-${matchIndex}`}>
+      <mark className="search-term-highlight" key={`${startIndex}-${matchIndex}`}>
         {sourceChars.slice(startIndex, endIndex).join("")}
       </mark>,
     );
