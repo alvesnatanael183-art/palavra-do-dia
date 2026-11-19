@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { ArrowLeft, ArrowRight, BookOpen, ChevronDown, Copy, LoaderCircle, Search } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
+import { highlightText } from "@/components/SearchHighlight";
 import { bookHref, getBooks, getChapter, textFromContent, type BibleBook, type BibleChapter } from "@/lib/bible";
 
 export default function Reader() {
@@ -16,6 +17,7 @@ export default function Reader() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [highlightVerse, setHighlightVerse] = useState<number | null>(() => Number(new URLSearchParams(window.location.search).get("v")) || null);
+  const [highlightQuery, setHighlightQuery] = useState(() => new URLSearchParams(window.location.search).get("q") ?? "");
 
   useEffect(() => {
     getBooks().then(setBooks).catch(() => setError("A lista de livros não pôde ser carregada."));
@@ -23,7 +25,9 @@ export default function Reader() {
 
   useEffect(() => {
     const syncHighlightFromLocation = () => {
-      setHighlightVerse(Number(new URLSearchParams(window.location.search).get("v")) || null);
+      const params = new URLSearchParams(window.location.search);
+      setHighlightVerse(Number(params.get("v")) || null);
+      setHighlightQuery(params.get("q") ?? "");
     };
     window.addEventListener("popstate", syncHighlightFromLocation);
     window.addEventListener("hashchange", syncHighlightFromLocation);
@@ -38,7 +42,9 @@ export default function Reader() {
     setLoading(true);
     setError("");
     setChapter(null);
-    setHighlightVerse(Number(new URLSearchParams(window.location.search).get("v")) || null);
+    const params = new URLSearchParams(window.location.search);
+    setHighlightVerse(Number(params.get("v")) || null);
+    setHighlightQuery(params.get("q") ?? "");
     Promise.all([getBooks(), getChapter(bookId, chapterNumber)]).then(([allBooks, result]) => {
       if (!active) return;
       setBooks(allBooks);
@@ -115,7 +121,7 @@ export default function Reader() {
                 <Link className="verse-number" href={bookHref(bookId, chapterNumber, verseNumber)} aria-label={`Versículo ${verseNumber}`} onClick={() => setHighlightVerse(verseNumber)}>
                   {verseNumber}
                 </Link>
-                <span>{textFromContent(item)}</span>
+                <span>{highlightText(textFromContent(item), highlightQuery)}</span>
               </p>
             );
           })}</div>}

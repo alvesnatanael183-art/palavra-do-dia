@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowRight, BookOpen, LoaderCircle, Search as SearchIcon, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
+import { highlightText } from "@/components/SearchHighlight";
 import { bookHref, findReference, getBooks, getSearchIndex, normalizeText, type BibleBook, type VerseRecord } from "@/lib/bible";
 
 export default function SearchPage() {
@@ -70,6 +71,10 @@ export default function SearchPage() {
     searchFor(query);
   }
 
+  function resultHref(result: VerseRecord) {
+    return `${bookHref(result.bookId, result.chapter, result.verse)}&q=${encodeURIComponent(activeQuery.trim())}`;
+  }
+
   return (
     <div className="site-shell">
       <SiteHeader />
@@ -79,11 +84,11 @@ export default function SearchPage() {
         <form className="search-page-form" onSubmit={submitSearch}><SearchIcon size={20} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="O que você procura?" aria-label="Termo ou referência para buscar" /><button type="submit">Buscar <ArrowRight size={16} /></button></form>
         <div className="search-hints"><span>Experimente:</span>{["amor", "não temas", "João 3:16", "Salmo 23"].map((hint) => <button type="button" key={hint} onClick={() => searchFor(hint)}>{hint}</button>)}</div>
         <section className="results-section" aria-live="polite">
-          {activeQuery && <div className="results-heading"><div><span className="section-kicker">RESULTADOS PARA</span><h2>“{activeQuery}”</h2></div>{!loading && !error && results.length > 0 && <span className="result-count">{resultLabel}</span>}</div>}
+          {activeQuery && <div className="results-heading"><div><span className="section-kicker">RESULTADOS PARA</span><h2>“{highlightText(activeQuery, activeQuery)}”</h2></div>{!loading && !error && results.length > 0 && <span className="result-count">{resultLabel}</span>}</div>}
           {loading && <div className="search-loading"><LoaderCircle className="spin" size={22} /><div><strong>Procurando em toda a Bíblia...</strong><span>Carregando o texto integral{progress > 0 ? ` · ${progress}%` : ""}</span><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div></div>}
           {error && <div className="search-error"><p>{error}</p><button onClick={() => { const value = activeQuery; setActiveQuery(""); window.setTimeout(() => setActiveQuery(value), 0); }}>Tentar novamente</button></div>}
           {!loading && !error && activeQuery && results.length === 0 && normalizeText(activeQuery).length >= 2 && <div className="no-results"><div className="empty-icon"><BookOpen size={22} /></div><h3>Nenhum versículo encontrado</h3><p>Tente outra palavra ou procure por uma referência bíblica.</p></div>}
-          {!loading && results.length > 0 && <div className="results-list">{results.map((result) => <Link key={`${result.bookId}-${result.chapter}-${result.verse}`} href={bookHref(result.bookId, result.chapter, result.verse)} className="result-card"><span className="result-icon"><BookOpen size={17} /></span><div className="result-copy"><strong>{result.bookName} {result.chapter}:{result.verse}</strong><p>{result.text}</p></div><ArrowRight size={17} className="result-arrow" /></Link>)}</div>}
+          {!loading && results.length > 0 && <div className="results-list">{results.map((result) => <Link key={`${result.bookId}-${result.chapter}-${result.verse}`} href={resultHref(result)} className="result-card"><span className="result-icon"><BookOpen size={17} /></span><div className="result-copy"><strong>{result.bookName} {result.chapter}:{result.verse}</strong><p>{highlightText(result.text, activeQuery)}</p></div><ArrowRight size={17} className="result-arrow" /></Link>)}</div>}
           {!activeQuery && <div className="search-empty-state"><Sparkles size={20} /><p>Digite uma palavra ou referência para começar sua busca.</p></div>}
           {!loading && results.length >= 36 && <p className="results-limit">Mostrando até 36 resultados. Seja mais específico para refinar a busca.</p>}
         </section>
