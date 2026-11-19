@@ -6,7 +6,6 @@ type DailyPlannerProps = {
   onSelectDate: (date: Date) => void;
   verseReference: string;
   verseText: string;
-  reflection: string;
   prophetCode: string;
   prophetTitle: string;
   prophetExcerpt: string;
@@ -28,9 +27,6 @@ function printableText(props: DailyPlannerProps) {
     `Palavra Viva — ${props.verseReference}`,
     "",
     props.verseText,
-    "",
-    "REFLEXÃO DO DIA",
-    props.reflection,
     "",
     `MENSAGEM DO PROFETA — ${props.prophetCode} · ${props.prophetTitle}`,
     props.prophetExcerpt,

@@ -251,7 +251,6 @@ export default function Home() {
                 onSelectDate={setSelectedDate}
                 verseReference={dailyReading.reference}
                 verseText={dailyVerseText}
-                reflection={dailyReading.reflection}
                 prophetCode={dailyProphet.dateCode}
                 prophetTitle={dailyProphet.title}
                 prophetExcerpt={dailyProphetExcerpt}
@@ -297,35 +296,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section
-          id="reflexao-diaria"
-          className="daily-reflection-section page-width"
-        >
-          <div className="section-heading">
-            <span className="section-kicker">REFLEXÃO DO DIA</span>
-            <span className="reflection-alignment">
-              Em diálogo com a mensagem
-            </span>
-          </div>
-          <article className="daily-reflection-card">
-            <div className="reflection-label">
-              <span>PALAVRA VIVA</span>
-              <span>·</span>
-              <span>REFLEXÃO ALINHADA A {dailyReading.reference}</span>
-            </div>
-            <p>{dailyReading.reflection}</p>
-            <ShareCopyActions
-              text={dailyReading.reflection}
-              label="a reflexão do dia"
-            />
-            <SpeechControls
-              text={dailyReading.reflection}
-              label="a reflexão do dia"
-            />
-            <div className="reflection-footer">
-              <span>Texto editorial original; não é transcrição literal.</span>
-            </div>
-          </article>
+        <section className="daily-reflection-section page-width">
           <article className="daily-prophet-card">
             <div className="reflection-label">
               <span>TRECHO RELACIONADO AO VERSÍCULO · MENSAGEM DO PROFETA</span>
