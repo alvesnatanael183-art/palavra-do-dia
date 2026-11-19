@@ -1079,13 +1079,13 @@ button {
 .search-term-highlight {
   padding: 0 2px;
   border-radius: 3px;
-  color: #0875b1;
-  background: #dff3ff;
+  color: #705f9f;
+  background: #f0ebff;
   font-weight: 700;
 }
 .full-message-panel.is-night .search-term-highlight {
-  color: #9edcff;
-  background: #194d6c;
+  color: #d2c5f5;
+  background: #40365c;
 }
 .verse-number {
   display: inline-block;
@@ -2935,13 +2935,13 @@ button {
 .search-highlight {
   padding: 0 2px;
   border-radius: 3px;
-  color: #0875b1;
-  background: #dff3ff;
+  color: #705f9f;
+  background: #f0ebff;
   font-weight: 750;
 }
 .full-message-panel.is-night .search-highlight {
-  color: #9edcff;
-  background: #194d6c;
+  color: #d2c5f5;
+  background: #40365c;
 }
 .message-catalog-empty {
   min-height: 150px;
